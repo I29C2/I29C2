@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vatra Labs — Produse digitale pentru comunitate</title>
+  <meta name="description" content="Construim produse digitale care ajută comunitățile să navigheze tranziții importante: integrare culturală, educație, participare civică.">
+  <meta property="og:title" content="Vatra Labs">
+  <meta property="og:description" content="Trei produse. O viziune. Construit pentru diaspora română.">
+  <meta property="og:type" content="website">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #FAFAF8;
+      --bg-card:       #F2F0E8;
+      --bg-card-hover: #ECEAE0;
+      --text-1:        #18180F;
+      --text-2:        #56564E;
+      --text-3:        #9A9A8E;
+      --accent:        #BA7517;
+      --accent-light:  #FAEEDA;
+      --accent-dark:   #854F0B;
+      --teal:          #0F6E56;
+      --teal-light:    #E1F5EE;
+      --blue:          #185FA5;
+      --blue-light:    #E6F1FB;
+      --border:        rgba(0,0,0,0.07);
+      --border-md:     rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.18);
+      --f-display:     'Fraunces', Georgia, serif;
+      --f-body:        'DM Sans', system-ui, sans-serif;
+      --r-sm:  8px;
+      --r-md:  12px;
+      --r-lg:  18px;
+      --ease:  0.18s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--f-body);
+      background: var(--bg);
+      color: var(--text-1);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ─── NAV ──────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(250,250,248,0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-family: var(--f-display);
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      margin-left: 0.75rem;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      font-family: var(--f-body);
+      font-size: 14px;
+      color: var(--text-2);
+      cursor: pointer;
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--r-sm);
+      transition: color var(--ease), background var(--ease);
+    }
+
+    .nav-btn:hover { color: var(--text-1); background: var(--bg-card); }
+    .nav-btn.active { color: var(--text-1); font-weight: 500; }
+
+    .nav-end {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .lang-pill {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      border: 1px solid var(--border-md);
+      border-radius: 99px;
+      padding: 0.28rem 0.65rem;
+      cursor: pointer;
+      background: none;
+      font-family: var(--f-body);
+      transition: color var(--ease), border-color var(--ease);
+    }
+
+    .lang-pill:hover { color: var(--text-1); border-color: var(--accent); }
+
+    .btn-cta {
+      font-family: var(--f-body);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 0.48rem 1.1rem;
+      background: var(--text-1);
+      color: var(--bg);
+      border: none;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: background var(--ease), transform var(--ease);
+    }
+
+    .btn-cta:hover { background: var(--accent); transform: translateY(-1px); }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-1);
+      border-radius: 2px;
+      transition: var(--ease);
+    }
+
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding: 0.75rem 1.5rem 1rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .mobile-nav.open { display: flex; }
+
+    /* ─── PAGES ────────────────────────────────── */
+    .page { display: none; animation: none; }
+    .page.active { display: block; animation: fadeUp 0.28s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── LAYOUT HELPERS ───────────────────────── */
+    .wrap {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    /* ─── BUTTONS ──────────────────────────────── */
+    .btn-primary {
+      font-family: var(--f-body);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 0.78rem 1.6rem;
+      background: var(--text-1);
+      color: var(--bg);
+      border: none;
+      border-radius: var(--r-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background var(--ease), transform var(--ease);
+    }
+
+    .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+
+    .btn-ghost {
+      font-family: var(--f-body);
+      font-size: 15px;
+      font-weight: 400;
+      padding: 0.78rem 1.2rem;
+      background: none;
+      color: var(--text-2);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color var(--ease);
+    }
+
+    .btn-ghost:hover { color: var(--text-1); }
+
+    .btn-outline {
+      font-family: var(--f-body);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      background: none;
+      color: var(--text-1);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: border-color var(--ease), color var(--ease);
+    }
+
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── BADGES ───────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 0.22rem 0.62rem;
+      border-radius: 99px;
+    }
+
+    .badge-amber  { background: var(--accent-light); color: var(--accent-dark); }
+    .badge-teal   { background: var(--teal-light);   color: var(--teal); }
+    .badge-blue   { background: var(--blue-light);   color: var(--blue); }
+    .badge-gray   { background: var(--bg-card);      color: var(--text-2); }
+    .badge-live::before  { content: "●"; font-size: 8px; color: var(--teal); }
+    .badge-beta::before  { content: "◐"; font-size: 8px; color: var(--accent); }
+
+    /* ─── ═══════════════════════════════════════
+         PAGE: HOME
+       ═══════════════════════════════════════ ─── */
+
+    /* Hero */
+    .hero {
+      padding: 6rem 1.5rem 5rem;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.28rem 0.8rem;
+      border-radius: 99px;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(2.6rem, 6.5vw, 5rem);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      color: var(--text-1);
+      max-width: 740px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 em { font-style: italic; color: var(--accent); }
+
+    .hero p.lead {
+      font-size: 18px;
+      color: var(--text-2);
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Products grid */
+    .products-section {
+      padding: 5rem 1.5rem;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 0.7rem;
+    }
+
+    .section-heading {
+      font-family: var(--f-display);
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--text-1);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-sub {
+      font-size: 17px;
+      color: var(--text-2);
+      max-width: 460px;
+      line-height: 1.65;
+      margin-bottom: 3rem;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .product-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.6rem;
+      cursor: pointer;
+      transition: border-color var(--ease), transform var(--ease), box-shadow var(--ease), background var(--ease);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .product-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px rgba(186,117,23,0.12);
+    }
+
+    .product-card h3 {
+      font-family: var(--f-display);
+      font-size: 21px;
+      font-weight: 500;
+      letter-spacing: -0.025em;
+      color: var(--text-1);
+    }
+
+    .product-card p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .card-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Mission strip */
+    .mission-strip {
+      background: var(--text-1);
+      padding: 5rem 1.5rem;
+    }
+
+    .mission-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .mission-strip .section-eyebrow { color: rgba(255,255,255,0.35); }
+
+    .mission-strip blockquote {
+      font-family: var(--f-display);
+      font-size: clamp(1.6rem, 3.8vw, 2.5rem);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.38;
+      letter-spacing: -0.025em;
+      color: #fff;
+      max-width: 680px;
+      margin: 0.75rem 0 1.5rem;
+    }
+
+    .mission-strip p.detail {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      max-width: 440px;
+      line-height: 1.7;
+    }
+
+    /* CTA section */
+    .cta-section {
+      padding: 6rem 1.5rem;
+      text-align: center;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .cta-section .section-heading { font-size: 2.2rem; }
+
+    .cta-section p {
+      font-size: 17px;
+      color: var(--text-2);
+      max-width: 400px;
+      margin: 0.75rem auto 2.5rem;
+      line-height: 1.65;
+    }
+
+    /* ─── ═══════════════════════════════════════
+         PAGE: PRODUCTS
+       ═══════════════════════════════════════ ─── */
+
+    .page-hero {
+      padding: 4.5rem 1.5rem 3.5rem;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .page-hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(2.2rem, 5vw, 3.75rem);
+      font-weight: 400;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 0.85rem;
+    }
+
+    .page-hero p {
+      font-size: 17px;
+      color: var(--text-2);
+      max-width: 490px;
+      line-height: 1.65;
+    }
+
+    .products-list {
+      padding: 3.5rem 1.5rem 5rem;
+      max-width: 1020px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .product-detail {
+      border: 1px solid var(--border-md);
+      border-radius: var(--r-lg);
+      padding: 2rem 2rem 1.5rem;
+      transition: border-color var(--ease);
+    }
+
+    .product-detail:hover { border-color: var(--border-strong); }
+
+    .product-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .product-detail h3 {
+      font-family: var(--f-display);
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--text-1);
+      margin-bottom: 0.3rem;
+    }
+
+    .product-detail .tagline {
+      font-size: 14px;
+      color: var(--text-3);
+      font-style: italic;
+    }
+
+    .product-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-col-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 0.65rem;
+    }
+
+    .product-col p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .feature-list li {
+      font-size: 14px;
+      color: var(--text-2);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      line-height: 1.55;
+    }
+
+    .feature-list li::before {
+      content: "–";
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .product-footer {
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .product-audience {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    .product-audience strong { color: var(--text-2); font-weight: 400; }
+
+    .teaser-card {
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--r-lg);
+      padding: 2.5rem;
+      text-align: center;
+    }
+
+    .teaser-card h3 {
+      font-family: var(--f-display);
+      font-size: 22px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-2);
+      margin-bottom: 0.5rem;
+    }
+
+    .teaser-card p { font-size: 14px; color: var(--text-3); }
+
+    /* ─── ═══════════════════════════════════════
+         PAGE: ABOUT
+       ═══════════════════════════════════════ ─── */
+
+    .about-sections {
+      padding: 3.5rem 1.5rem 5rem;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .about-block { margin-bottom: 4.5rem; }
+    .about-block:last-child { margin-bottom: 0; }
+
+    .about-block-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 3.5rem;
+    }
+
+    .story-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+
+    .story-aside {
+      position: sticky;
+      top: 80px;
+    }
+
+    .story-aside p {
+      font-size: 13px;
+      color: var(--text-3);
+      line-height: 1.7;
+    }
+
+    .story-text p {
+      font-size: 16px;
+      color: var(--text-2);
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+    }
+
+    .story-text p:last-child { margin-bottom: 0; }
+    .story-text strong { color: var(--text-1); font-weight: 500; }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .team-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.6rem;
+    }
+
+    .team-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--f-display);
+      font-size: 19px;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .av-amber { background: var(--accent-light); color: var(--accent); }
+    .av-teal  { background: var(--teal-light);   color: var(--teal); }
+
+    .team-card h4 { font-size: 16px; font-weight: 500; margin-bottom: 0.2rem; }
+
+    .team-role {
+      font-size: 12px;
+      margin-bottom: 0.8rem;
+    }
+
+    .role-amber { color: var(--accent); }
+    .role-teal  { color: var(--teal); }
+
+    .team-card p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .value-card {
+      border: 1px solid var(--border-md);
+      border-radius: var(--r-lg);
+      padding: 1.6rem;
+    }
+
+    .value-num {
+      font-family: var(--f-display);
+      font-size: 38px;
+      font-weight: 400;
+      color: var(--border-strong);
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+
+    .value-card h4 { font-size: 15px; font-weight: 500; margin-bottom: 0.45rem; }
+    .value-card p  { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    /* ─── ═══════════════════════════════════════
+         PAGE: CONTACT
+       ═══════════════════════════════════════ ─── */
+
+    .contact-section {
+      padding: 3.5rem 1.5rem 5rem;
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.55fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .contact-info h3 {
+      font-family: var(--f-display);
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .contact-info p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 14px;
+      color: var(--text-2);
+    }
+
+    .contact-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .contact-item a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: text-decoration var(--ease);
+    }
+
+    .contact-item a:hover { text-decoration: underline; }
+
+    /* Form */
+    .form-field { margin-bottom: 1.2rem; }
+
+    .form-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 0.45rem;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border-md);
+      border-radius: var(--r-sm);
+      font-size: 15px;
+      font-family: var(--f-body);
+      color: var(--text-1);
+      outline: none;
+      transition: border-color var(--ease), box-shadow var(--ease);
+      appearance: none;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .form-field textarea {
+      min-height: 128px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .form-field input::placeholder,
+    .form-field textarea::placeholder { color: var(--text-3); }
+
+    .form-note {
+      margin-top: 1rem;
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.6;
+    }
+
+    .form-success {
+      display: none;
+      background: var(--teal-light);
+      border: 1px solid rgba(15,110,86,0.2);
+      border-radius: var(--r-md);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .form-success p:first-child { font-size: 2rem; margin-bottom: 0.5rem; }
+    .form-success .ok-title { font-size: 16px; font-weight: 500; color: var(--teal); margin-bottom: 0.25rem; }
+    .form-success .ok-sub   { font-size: 14px; color: var(--text-2); }
+
+    /* ─── FOOTER ───────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+    }
+
+    .footer-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-inner p { font-size: 13px; color: var(--text-3); }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color var(--ease);
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ─── RESPONSIVE ───────────────────────────── */
+    @media (max-width: 780px) {
+      .nav-links, .btn-cta { display: none; }
+      .hamburger { display: flex; }
+
+      .cards-grid { grid-template-columns: 1fr; }
+      .product-body { grid-template-columns: 1fr; }
+      .story-layout { grid-template-columns: 1fr; gap: 1.75rem; }
+      .story-aside { position: static; }
+      .team-grid { grid-template-columns: 1fr; }
+      .values-grid { grid-template-columns: 1fr; }
+      .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+
+      .hero { padding: 4rem 1.5rem 3rem; }
+      .hero h1 { font-size: 2.4rem; }
+      .products-section, .about-sections, .contact-section { padding-left: 1rem; padding-right: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      .product-detail-head { flex-direction: column; }
+      .product-footer { flex-direction: column; align-items: flex-start; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════ -->
+<nav id="mainNav">
+  <div class="nav-inner">
+    <div class="logo" onclick="go('home')">Vatra<span>.</span>Labs</div>
+
+    <div class="nav-links">
+      <button class="nav-btn active" data-page="home"     onclick="go('home')">Acasă</button>
+      <button class="nav-btn"        data-page="products" onclick="go('products')">Produse</button>
+      <button class="nav-btn"        data-page="about"    onclick="go('about')">Despre</button>
+      <button class="nav-btn"        data-page="contact"  onclick="go('contact')">Contact</button>
+    </div>
+
+    <div class="nav-end">
+      <button class="lang-pill" id="langBtn" onclick="toggleLang()">EN</button>
+      <button class="btn-cta"   onclick="go('contact')" data-i18n="nav-cta">Scrie-ne</button>
+    </div>
+
+    <button class="hamburger" onclick="toggleMobile()" aria-label="Meniu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="nav-btn" onclick="go('home');closeMobile()"     data-i18n="nav-home">Acasă</button>
+    <button class="nav-btn" onclick="go('products');closeMobile()" data-i18n="nav-products">Produse</button>
+    <button class="nav-btn" onclick="go('about');closeMobile()"    data-i18n="nav-about">Despre</button>
+    <button class="nav-btn" onclick="go('contact');closeMobile()"  data-i18n="nav-contact">Contact</button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════
+     PAGE · HOME
+════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <div class="hero">
+    <div class="hero-eyebrow" data-i18n="home-eyebrow">Produse digitale cu scop</div>
+    <h1 data-i18n-html="home-h1">Construim pentru comunitate,<br>nu pentru <em>prezentări</em>.</h1>
+    <p class="lead" data-i18n="home-lead">Ajutăm românii din diasporă să navigheze tranziții importante — integrare culturală, educație, participare civică. Trei produse. O viziune.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="go('products')" data-i18n="home-cta1">Vezi produsele</button>
+      <button class="btn-ghost"   onclick="go('about')"    data-i18n="home-cta2">Despre noi →</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="products-section">
+    <p class="section-eyebrow" data-i18n="home-portfolio-label">Portofoliu</p>
+    <h2 class="section-heading" data-i18n-html="home-portfolio-title">Trei produse,<br>un fir comun.</h2>
+    <p class="section-sub" data-i18n="home-portfolio-sub">Fiecare produs rezolvă o problemă reală, simțită de oameni reali. Nu construim pentru pitch-uri.</p>
+
+    <div class="cards-grid">
+      <div class="product-card" onclick="go('products')">
+        <span class="badge badge-amber badge-beta">Beta</span>
+        <h3>BlaBlaLingo</h3>
+        <p data-i18n="prod1-short">Cursuri de engleză &amp; germană pentru românii care vor să se integreze sau să avanseze profesional în diasporă.</p>
+        <span class="card-link" data-i18n="card-discover">Descoperă →</span>
+      </div>
+
+      <div class="product-card" onclick="go('products')">
+        <span class="badge badge-amber badge-beta">Beta</span>
+        <h3>Ghidul Diasporei</h3>
+        <p data-i18n="prod2-short">Birocratizare, locuință, sănătate, muncă — totul explicat simplu pentru românii din Germania. Scris din experiență directă.</p>
+        <span class="card-link" data-i18n="card-discover">Descoperă →</span>
+      </div>
+
+      <div class="product-card" onclick="go('products')">
+        <span class="badge badge-teal badge-live">Live</span>
+        <h3>România prin ochii tăi</h3>
+        <p data-i18n="prod3-short">Platformă civică interactivă. Harta nemulțumirilor și aprecierilor locale din România. Vizibil la romania-mea.org.</p>
+        <span class="card-link" data-i18n="card-discover">Descoperă →</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="mission-strip">
+    <div class="mission-inner">
+      <p class="section-eyebrow" data-i18n="mission-label">Misiunea noastră</p>
+      <blockquote data-i18n="mission-quote">"Nu suntem o agenție. Suntem o companie de produs cu un portofoliu coerent — construit din necesitate, nu din oportunism."</blockquote>
+      <p class="detail" data-i18n="mission-detail">Am simțit pe pielea noastră ce lipsește. Am decis să construim în loc să ne plângem. Asta e tot.</p>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2 class="section-heading" data-i18n="cta-heading">Lucrăm la ceva ce te interesează?</h2>
+    <p data-i18n="cta-sub">Fie că ești utilizator, partener sau investitor — suntem deschiși la conversație.</p>
+    <button class="btn-primary" onclick="go('contact')" data-i18n="cta-btn">Scrie-ne →</button>
+  </div>
+
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     PAGE · PRODUCTS
+════════════════════════════════════════════ -->
+<div class="page" id="page-products">
+
+  <div class="page-hero wrap">
+    <p class="section-eyebrow" data-i18n="pp-eyebrow">Portofoliu</p>
+    <h1 data-i18n="pp-title">Produsele noastre</h1>
+    <p data-i18n="pp-sub">Fiecare produs pornește de la o problemă reală. Le construim pentru că avem nevoie de ele, nu pentru că sunt la modă.</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="products-list">
+
+    <!-- BlaBlaLingo -->
+    <div class="product-detail">
+      <div class="product-detail-head">
+        <div>
+          <h3>BlaBlaLingo</h3>
+          <p class="tagline" data-i18n="p1-tagline">Engleză &amp; germană pentru diaspora română</p>
+        </div>
+        <span class="badge badge-amber badge-beta">Beta</span>
+      </div>
+      <div class="product-body">
+        <div class="product-col">
+          <p class="product-col-label" data-i18n="col-problem">Problema rezolvată</p>
+          <p data-i18n="p1-problem">Cursurile tradiționale sunt scumpe sau nu țin cont de contextul specific al unui român care trăiește deja în diasporă. BlaBlaLingo pornește de la situații reale de viață, nu de la gramatică abstractă.</p>
+        </div>
+        <div class="product-col">
+          <p class="product-col-label" data-i18n="col-how">Cum funcționează</p>
+          <ul class="feature-list">
+            <li data-i18n="p1-f1">Lecții scurte bazate pe scenarii din viața de zi cu zi a diasporei</li>
+            <li data-i18n="p1-f2">Progres adaptiv — avansezi în ritmul tău, nu al unui curriculum fix</li>
+            <li data-i18n="p1-f3">Focusat pe limbaj practic: job, administrație, social</li>
+          </ul>
+        </div>
+      </div>
+      <div class="product-footer">
+        <p class="product-audience"><span data-i18n="audience-label">Pentru: </span><strong data-i18n="p1-audience">Românii din diasporă care vor să avanseze profesional sau social</strong></p>
+        <a href="#" class="btn-outline" data-i18n="p1-cta">Încearcă BlaBlaLingo ↗</a>
+      </div>
+    </div>
+
+    <!-- Ghidul Diasporei -->
+    <div class="product-detail">
+      <div class="product-detail-head">
+        <div>
+          <h3>Ghidul Diasporei</h3>
+          <p class="tagline" data-i18n="p2-tagline">Birocrația germană, explicată simplu</p>
+        </div>
+        <span class="badge badge-amber badge-beta">Beta</span>
+      </div>
+      <div class="product-body">
+        <div class="product-col">
+          <p class="product-col-label" data-i18n="col-problem">Problema rezolvată</p>
+          <p data-i18n="p2-problem">Când ajungi în Germania, te lovești de o birocratizare masivă pe care nu o înțelege nimeni fără ajutor. Ghidul adună tot ce trebuie să știi — din experiență directă, nu din traduceri ale unor documente oficiale.</p>
+        </div>
+        <div class="product-col">
+          <p class="product-col-label" data-i18n="col-covers">Ce acoperă</p>
+          <ul class="feature-list">
+            <li data-i18n="p2-f1">Înregistrare reședință (Anmeldung) și acte necesare</li>
+            <li data-i18n="p2-f2">Sistemul de sănătate — cum alegi asigurarea și medicul</li>
+            <li data-i18n="p2-f3">Găsit locuință: de la WG la contract propriu</li>
+            <li data-i18n="p2-f4">Drepturi la muncă, contract, concediere</li>
+          </ul>
+        </div>
+      </div>
+      <div class="product-footer">
+        <p class="product-audience"><span data-i18n="audience-label">Pentru: </span><strong data-i18n="p2-audience">Românii care s-au mutat sau vor să se mute în Germania</strong></p>
+        <a href="#" class="btn-outline" data-i18n="p2-cta">Deschide Ghidul ↗</a>
+      </div>
+    </div>
+
+    <!-- România prin ochii tăi -->
+    <div class="product-detail">
+      <div class="product-detail-head">
+        <div>
+          <h3>România prin ochii tăi</h3>
+          <p class="tagline" data-i18n="p3-tagline">Harta participativă a nemulțumirilor și aprecierilor locale</p>
+        </div>
+        <span class="badge badge-teal badge-live">Live</span>
+      </div>
+      <div class="product-body">
+        <div class="product-col">
+          <p class="product-col-label" data-i18n="col-problem">Problema rezolvată</p>
+          <p data-i18n="p3-problem">Cetățenii au opinii clare despre ce funcționează și ce nu în orașul lor — dar nu au unde să le exprime structurat. Platforma colectează aceste semnale și le face vizibile, localitate cu localitate.</p>
+        </div>
+        <div class="product-col">
+          <p class="product-col-label" data-i18n="col-how">Cum funcționează</p>
+          <ul class="feature-list">
+            <li data-i18n="p3-f1">Marchezi pe hartă ce apreciezi sau ce îți displace în zona ta</li>
+            <li data-i18n="p3-f2">Fiecare raport e geolocalizat și categorizat automat</li>
+            <li data-i18n="p3-f3">Date agregate vizibile public — transparență completă</li>
+          </ul>
+        </div>
+      </div>
+      <div class="product-footer">
+        <p class="product-audience"><span data-i18n="audience-label">Pentru: </span><strong data-i18n="p3-audience">Cetățenii din România care vor să fie auziți</strong></p>
+        <a href="https://romania-mea.org" target="_blank" rel="noopener" class="btn-outline">romania-mea.org ↗</a>
+      </div>
+    </div>
+
+    <!-- Teaser -->
+    <div class="teaser-card">
+      <h3 data-i18n="teaser-title">Ceva urmează...</h3>
+      <p data-i18n="teaser-sub">Construim în continuare. Nu promitem nimic înainte de vreme — dar dacă ești curios, scrie-ne.</p>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     PAGE · ABOUT
+════════════════════════════════════════════ -->
+<div class="page" id="page-about">
+
+  <div class="page-hero wrap">
+    <p class="section-eyebrow" data-i18n="pa-eyebrow">Despre Vatra Labs</p>
+    <h1 data-i18n="pa-title">De ce existăm</h1>
+    <p data-i18n="pa-sub">Nu am pornit de la o oportunitate de piață. Am pornit de la frustrare — și am decis s-o transformăm în ceva util.</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="about-sections">
+
+    <!-- Story -->
+    <div class="about-block">
+      <p class="section-eyebrow" data-i18n="story-label">Povestea</p>
+      <div class="story-layout">
+        <div class="story-aside">
+          <p data-i18n="story-aside">Experiență directă.<br><br>Construite pentru oameni reali, nu pentru demo-uri.</p>
+        </div>
+        <div class="story-text">
+          <p data-i18n="story-p1">Am ajuns în Germania și am realizat că <strong>nimeni nu îți explică ce ai de făcut</strong>. Nu există un ghid clar, scris de cineva care a trecut prin asta. Există documente oficiale în germană birocratică, grupuri de Facebook pline de dezinformare și prieteni care nu știu mai mult decât tine.</p>
+          <p data-i18n="story-p2">Asta a dat naștere primului produs. Și din primul produs am învățat că problema e mai largă: <strong>diaspora română are nevoi specifice</strong> pe care produsele generice nu le acoperă. Integrare lingvistică. Birocratizare locală. Conexiune cu acasă.</p>
+          <p data-i18n="story-p3">Vatra Labs există pentru că am decis că e mai bine să construim decât să așteptăm. Suntem o echipă mică, înțelegem problemele din interior și lucrăm încet, cu grijă — nu pentru creștere cu orice preț.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="about-block-divider">
+
+    <!-- Team -->
+    <div class="about-block">
+      <p class="section-eyebrow" data-i18n="team-label">Echipa</p>
+      <h2 class="section-heading" style="font-size:1.8rem;" data-i18n="team-heading">Oameni reali, nu stock photos.</h2>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar av-amber">V</div>
+          <h4 data-i18n="t1-name">Fondatorul</h4>
+          <p class="team-role role-amber" data-i18n="t1-role">Produs &amp; Viziune</p>
+          <p data-i18n="t1-bio">A trăit experiența diasporei din interior. Construiește produse pornind de la probleme pe care le-a simțit pe pielea lui. Crede că cel mai bun produs e cel pe care tu însuți ai vrea să-l folosești.</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar av-teal">I</div>
+          <h4>Ioana</h4>
+          <p class="team-role role-teal" data-i18n="t2-role">Design &amp; Conținut</p>
+          <p data-i18n="t2-bio">Se asigură că produsele nu doar funcționează, ci și arată și se simt bine. Crede că designul bun e invizibil — observi când lipsește, nu când e acolo.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="about-block-divider">
+
+    <!-- Values -->
+    <div class="about-block">
+      <p class="section-eyebrow" data-i18n="values-label">Valorile noastre</p>
+      <h2 class="section-heading" style="font-size:1.8rem;" data-i18n="values-heading">Principii, nu buzzwords.</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <p class="value-num">01</p>
+          <h4 data-i18n="v1-title">Construim pentru oameni reali</h4>
+          <p data-i18n="v1-text">Nu pentru prezentări sau pitch-uri. Dacă un utilizator real nu beneficiază de o funcție, probabil nu o construim.</p>
+        </div>
+        <div class="value-card">
+          <p class="value-num">02</p>
+          <h4 data-i18n="v2-title">Simplitate înainte de completitudine</h4>
+          <p data-i18n="v2-text">Un produs simplu care funcționează bate un produs complex care confuzionează. Lansăm devreme, iterăm des.</p>
+        </div>
+        <div class="value-card">
+          <p class="value-num">03</p>
+          <h4 data-i18n="v3-title">Transparență autentică</h4>
+          <p data-i18n="v3-text">Suntem deschiși despre ce merge și ce nu. Nu facem marketing care promite mai mult decât livrăm.</p>
+        </div>
+        <div class="value-card">
+          <p class="value-num">04</p>
+          <h4 data-i18n="v4-title">Sustenabilitate, nu creștere cu orice preț</h4>
+          <p data-i18n="v4-text">Vrem să construim ceva care durează. Nu urmărim scale rapid dacă asta ne compromite misiunea.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     PAGE · CONTACT
+════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+
+  <div class="page-hero wrap">
+    <p class="section-eyebrow" data-i18n="pc-eyebrow">Contact</p>
+    <h1 data-i18n="pc-title">Scrie-ne</h1>
+    <p data-i18n="pc-sub">Răspundem în maxim 48 de ore. Nu avem un departament de suport — citim și răspundem noi personal.</p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="contact-section">
+    <div class="contact-layout">
+
+      <div class="contact-info">
+        <h3 data-i18n="ci-heading">Deschiși pentru:</h3>
+        <p data-i18n="ci-text">Colaborări cu ONG-uri, școli sau organizații care lucrează cu diaspora. Parteneriate media. Feedback despre produse. Sau pur și simplu dacă vrei să ne spui că ce construim e util.</p>
+        <div class="contact-links">
+          <div class="contact-item">
+            <div class="contact-icon">✉</div>
+            <span>Email: <a href="mailto:hello@vatralabs.com">hello@vatralabs.com</a></span>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon" style="font-size:12px;font-weight:700;">in</div>
+            <span>LinkedIn: <a href="#">/vatralabs</a></span>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🌐</div>
+            <span><a href="https://romania-mea.org" target="_blank" rel="noopener">romania-mea.org ↗</a></span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <form id="contactForm" onsubmit="submitForm(event)">
+          <div class="form-field">
+            <label for="f-name" data-i18n="f-name-label">Cum te cheamă?</label>
+            <input type="text" id="f-name" placeholder="Numele tău" required data-i18n-ph="f-name-ph">
+          </div>
+          <div class="form-field">
+            <label for="f-email">Email</label>
+            <input type="email" id="f-email" placeholder="adresa@ta.com" required>
+          </div>
+          <div class="form-field">
+            <label for="f-context" data-i18n="f-ctx-label">În ce context ne contactezi?</label>
+            <select id="f-context">
+              <option value="" data-i18n="f-ctx-default">Alege o opțiune...</option>
+              <option data-i18n="f-ctx-1">Utilizator al unui produs</option>
+              <option data-i18n="f-ctx-2">Partener potențial (ONG / instituție)</option>
+              <option data-i18n="f-ctx-3">Jurnalist / media</option>
+              <option data-i18n="f-ctx-4">Investitor</option>
+              <option data-i18n="f-ctx-5">Altceva</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="f-msg" data-i18n="f-msg-label">Mesajul tău</label>
+            <textarea id="f-msg" placeholder="Scrie-ne liber..." required data-i18n-ph="f-msg-ph"></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center;" data-i18n="f-submit">Trimite mesajul</button>
+          <p class="form-note" data-i18n="f-note">Nu folosim datele tale pentru nimic altceva decât să îți răspundem. Fără newsletter, fără remarketing.</p>
+        </form>
+
+        <div class="form-success" id="formSuccess">
+          <p>✓</p>
+          <p class="ok-title" data-i18n="f-ok-title">Mesaj trimis!</p>
+          <p class="ok-sub"   data-i18n="f-ok-sub">Îți răspundem în maxim 48 de ore.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <p data-i18n="footer-copy">© 2024 Vatra Labs. Construit cu grijă, pentru comunitate.</p>
+    <nav class="footer-links">
+      <a href="#" onclick="go('products');return false;" data-i18n="nav-products">Produse</a>
+      <a href="#" onclick="go('about');return false;"    data-i18n="nav-about">Despre</a>
+      <a href="#" onclick="go('contact');return false;"  data-i18n="nav-contact">Contact</a>
+      <a href="https://romania-mea.org" target="_blank" rel="noopener">romania-mea.org ↗</a>
+    </nav>
+  </div>
+</footer>
+
+
+<script>
+/* ── Navigation ───────────────────────────────── */
+function go(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn[data-page]').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('page-' + page).classList.add('active');
+  const btn = document.querySelector('.nav-btn[data-page="' + page + '"]');
+  if (btn) btn.classList.add('active');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Mobile menu ──────────────────────────────── */
+function toggleMobile() {
+  document.getElementById('mobileNav').classList.toggle('open');
+}
+function closeMobile() {
+  document.getElementById('mobileNav').classList.remove('open');
+}
+
+/* ── Contact form ─────────────────────────────── */
+function submitForm(e) {
+  e.preventDefault();
+  document.getElementById('contactForm').style.display = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+}
+
+/* ── i18n ─────────────────────────────────────── */
+const i18n = {
+  ro: {
+    'nav-home': 'Acasă', 'nav-products': 'Produse', 'nav-about': 'Despre',
+    'nav-contact': 'Contact', 'nav-cta': 'Scrie-ne',
+    'home-eyebrow': 'Produse digitale cu scop',
+    'home-h1': 'Construim pentru comunitate,<br>nu pentru <em>prezentări</em>.',
+    'home-lead': 'Ajutăm românii din diasporă să navigheze tranziții importante — integrare culturală, educație, participare civică. Trei produse. O viziune.',
+    'home-cta1': 'Vezi produsele', 'home-cta2': 'Despre noi →',
+    'home-portfolio-label': 'Portofoliu',
+    'home-portfolio-title': 'Trei produse,<br>un fir comun.',
+    'home-portfolio-sub': 'Fiecare produs rezolvă o problemă reală, simțită de oameni reali. Nu construim pentru pitch-uri.',
+    'prod1-short': 'Cursuri de engleză & germană pentru românii care vor să se integreze sau să avanseze profesional în diasporă.',
+    'prod2-short': 'Birocratizare, locuință, sănătate, muncă — totul explicat simplu pentru românii din Germania. Scris din experiență directă.',
+    'prod3-short': 'Platformă civică interactivă. Harta nemulțumirilor și aprecierilor locale din România. Vizibil la romania-mea.org.',
+    'card-discover': 'Descoperă →',
+    'mission-label': 'Misiunea noastră',
+    'mission-quote': '"Nu suntem o agenție. Suntem o companie de produs cu un portofoliu coerent — construit din necesitate, nu din oportunism."',
+    'mission-detail': 'Am simțit pe pielea noastră ce lipsește. Am decis să construim în loc să ne plângem. Asta e tot.',
+    'cta-heading': 'Lucrăm la ceva ce te interesează?',
+    'cta-sub': 'Fie că ești utilizator, partener sau investitor — suntem deschiși la conversație.',
+    'cta-btn': 'Scrie-ne →',
+    'pp-eyebrow': 'Portofoliu', 'pp-title': 'Produsele noastre',
+    'pp-sub': 'Fiecare produs pornește de la o problemă reală. Le construim pentru că avem nevoie de ele, nu pentru că sunt la modă.',
+    'col-problem': 'Problema rezolvată', 'col-how': 'Cum funcționează', 'col-covers': 'Ce acoperă',
+    'p1-tagline': 'Engleză & germană pentru diaspora română',
+    'p1-problem': 'Cursurile tradiționale sunt scumpe sau nu țin cont de contextul specific al unui român care trăiește deja în diasporă. BlaBlaLingo pornește de la situații reale de viață, nu de la gramatică abstractă.',
+    'p1-f1': 'Lecții scurte bazate pe scenarii din viața de zi cu zi a diasporei',
+    'p1-f2': 'Progres adaptiv — avansezi în ritmul tău, nu al unui curriculum fix',
+    'p1-f3': 'Focusat pe limbaj practic: job, administrație, social',
+    'audience-label': 'Pentru: ',
+    'p1-audience': 'Românii din diasporă care vor să avanseze profesional sau social',
+    'p1-cta': 'Încearcă BlaBlaLingo ↗',
+    'p2-tagline': 'Birocrația germană, explicată simplu',
+    'p2-problem': 'Când ajungi în Germania, te lovești de o birocratizare masivă pe care nu o înțelege nimeni fără ajutor. Ghidul adună tot ce trebuie să știi — din experiență directă, nu din traduceri ale unor documente oficiale.',
+    'p2-f1': 'Înregistrare reședință (Anmeldung) și acte necesare',
+    'p2-f2': 'Sistemul de sănătate — cum alegi asigurarea și medicul',
+    'p2-f3': 'Găsit locuință: de la WG la contract propriu',
+    'p2-f4': 'Drepturi la muncă, contract, concediere',
+    'p2-audience': 'Românii care s-au mutat sau vor să se mute în Germania',
+    'p2-cta': 'Deschide Ghidul ↗',
+    'p3-tagline': 'Harta participativă a nemulțumirilor și aprecierilor locale',
+    'p3-problem': 'Cetățenii au opinii clare despre ce funcționează și ce nu în orașul lor — dar nu au unde să le exprime structurat. Platforma colectează aceste semnale și le face vizibile, localitate cu localitate.',
+    'p3-f1': 'Marchezi pe hartă ce apreciezi sau ce îți displace în zona ta',
+    'p3-f2': 'Fiecare raport e geolocalizat și categorizat automat',
+    'p3-f3': 'Date agregate vizibile public — transparență completă',
+    'p3-audience': 'Cetățenii din România care vor să fie auziți',
+    'teaser-title': 'Ceva urmează...', 'teaser-sub': 'Construim în continuare. Nu promitem nimic înainte de vreme — dar dacă ești curios, scrie-ne.',
+    'pa-eyebrow': 'Despre Vatra Labs', 'pa-title': 'De ce existăm',
+    'pa-sub': 'Nu am pornit de la o oportunitate de piață. Am pornit de la frustrare — și am decis s-o transformăm în ceva util.',
+    'story-label': 'Povestea',
+    'story-aside': 'Experiență directă.\n\nConstruit pentru oameni reali, nu pentru demo-uri.',
+    'story-p1': 'Am ajuns în Germania și am realizat că <strong>nimeni nu îți explică ce ai de făcut</strong>. Nu există un ghid clar, scris de cineva care a trecut prin asta. Există documente oficiale în germană birocratică, grupuri de Facebook pline de dezinformare și prieteni care nu știu mai mult decât tine.',
+    'story-p2': 'Asta a dat naștere primului produs. Și din primul produs am învățat că problema e mai largă: <strong>diaspora română are nevoi specifice</strong> pe care produsele generice nu le acoperă. Integrare lingvistică. Birocratizare locală. Conexiune cu acasă.',
+    'story-p3': 'Vatra Labs există pentru că am decis că e mai bine să construim decât să așteptăm. Suntem o echipă mică, înțelegem problemele din interior și lucrăm încet, cu grijă — nu pentru creștere cu orice preț.',
+    'team-label': 'Echipa', 'team-heading': 'Oameni reali, nu stock photos.',
+    't1-name': 'Fondatorul', 't1-role': 'Produs & Viziune',
+    't1-bio': 'A trăit experiența diasporei din interior. Construiește produse pornind de la probleme pe care le-a simțit pe pielea lui. Crede că cel mai bun produs e cel pe care tu însuți ai vrea să-l folosești.',
+    't2-role': 'Design & Conținut',
+    't2-bio': 'Se asigură că produsele nu doar funcționează, ci și arată și se simt bine. Crede că designul bun e invizibil — observi când lipsește, nu când e acolo.',
+    'values-label': 'Valorile noastre', 'values-heading': 'Principii, nu buzzwords.',
+    'v1-title': 'Construim pentru oameni reali', 'v1-text': 'Nu pentru prezentări sau pitch-uri. Dacă un utilizator real nu beneficiază de o funcție, probabil nu o construim.',
+    'v2-title': 'Simplitate înainte de completitudine', 'v2-text': 'Un produs simplu care funcționează bate un produs complex care confuzionează. Lansăm devreme, iterăm des.',
+    'v3-title': 'Transparență autentică', 'v3-text': 'Suntem deschiși despre ce merge și ce nu. Nu facem marketing care promite mai mult decât livrăm.',
+    'v4-title': 'Sustenabilitate, nu creștere cu orice preț', 'v4-text': 'Vrem să construim ceva care durează. Nu urmărim scale rapid dacă asta ne compromite misiunea.',
+    'pc-eyebrow': 'Contact', 'pc-title': 'Scrie-ne',
+    'pc-sub': 'Răspundem în maxim 48 de ore. Nu avem un departament de suport — citim și răspundem noi personal.',
+    'ci-heading': 'Deschiși pentru:', 'ci-text': 'Colaborări cu ONG-uri, școli sau organizații care lucrează cu diaspora. Parteneriate media. Feedback despre produse. Sau pur și simplu dacă vrei să ne spui că ce construim e util.',
+    'f-name-label': 'Cum te cheamă?', 'f-name-ph': 'Numele tău',
+    'f-ctx-label': 'În ce context ne contactezi?', 'f-ctx-default': 'Alege o opțiune...',
+    'f-ctx-1': 'Utilizator al unui produs', 'f-ctx-2': 'Partener potențial (ONG / instituție)',
+    'f-ctx-3': 'Jurnalist / media', 'f-ctx-4': 'Investitor', 'f-ctx-5': 'Altceva',
+    'f-msg-label': 'Mesajul tău', 'f-msg-ph': 'Scrie-ne liber...',
+    'f-submit': 'Trimite mesajul',
+    'f-note': 'Nu folosim datele tale pentru nimic altceva decât să îți răspundem. Fără newsletter, fără remarketing.',
+    'f-ok-title': 'Mesaj trimis!', 'f-ok-sub': 'Îți răspundem în maxim 48 de ore.',
+    'footer-copy': '© 2024 Vatra Labs. Construit cu grijă, pentru comunitate.',
+  },
+  en: {
+    'nav-home': 'Home', 'nav-products': 'Products', 'nav-about': 'About',
+    'nav-contact': 'Contact', 'nav-cta': 'Contact us',
+    'home-eyebrow': 'Digital products with purpose',
+    'home-h1': 'We build for community,<br>not for <em>presentations</em>.',
+    'home-lead': 'We help Romanians in the diaspora navigate important transitions — cultural integration, education, civic participation. Three products. One vision.',
+    'home-cta1': 'See our products', 'home-cta2': 'About us →',
+    'home-portfolio-label': 'Portfolio',
+    'home-portfolio-title': 'Three products,<br>one common thread.',
+    'home-portfolio-sub': 'Each product solves a real problem, felt by real people. We don\'t build for pitch decks.',
+    'prod1-short': 'English & German courses for Romanians who want to integrate or advance professionally in the diaspora.',
+    'prod2-short': 'Bureaucracy, housing, healthcare, work — all explained simply for Romanians in Germany. Written from direct experience.',
+    'prod3-short': 'Interactive civic platform. A map of local appreciations and complaints from Romania. Live at romania-mea.org.',
+    'card-discover': 'Discover →',
+    'mission-label': 'Our mission',
+    'mission-quote': '"We\'re not an agency. We\'re a product company with a coherent portfolio — built out of necessity, not opportunism."',
+    'mission-detail': 'We felt first-hand what was missing. We decided to build instead of complain. That\'s it.',
+    'cta-heading': 'Working on something that interests you?',
+    'cta-sub': 'Whether you\'re a user, partner or investor — we\'re open to conversation.',
+    'cta-btn': 'Get in touch →',
+    'pp-eyebrow': 'Portfolio', 'pp-title': 'Our products',
+    'pp-sub': 'Each product starts from a real problem. We build them because we need them, not because they\'re trendy.',
+    'col-problem': 'Problem solved', 'col-how': 'How it works', 'col-covers': 'What it covers',
+    'p1-tagline': 'English & German for the Romanian diaspora',
+    'p1-problem': 'Traditional courses are expensive or don\'t account for the specific context of a Romanian already living abroad. BlaBlaLingo starts from real-life situations, not abstract grammar.',
+    'p1-f1': 'Short lessons based on everyday diaspora scenarios',
+    'p1-f2': 'Adaptive progress — advance at your own pace, not a fixed curriculum',
+    'p1-f3': 'Focused on practical language: work, administration, social',
+    'audience-label': 'For: ',
+    'p1-audience': 'Romanians in the diaspora who want to advance professionally or socially',
+    'p1-cta': 'Try BlaBlaLingo ↗',
+    'p2-tagline': 'German bureaucracy, explained simply',
+    'p2-problem': 'When you arrive in Germany, you face massive bureaucracy that nobody understands without help. The Guide gathers everything you need to know — from direct experience, not translations of official documents.',
+    'p2-f1': 'Residence registration (Anmeldung) and required documents',
+    'p2-f2': 'The health system — how to choose your insurance and doctor',
+    'p2-f3': 'Finding housing: from WG to your own contract',
+    'p2-f4': 'Work rights, contracts, termination',
+    'p2-audience': 'Romanians who have moved or want to move to Germany',
+    'p2-cta': 'Open the Guide ↗',
+    'p3-tagline': 'Participatory map of local appreciations and complaints',
+    'p3-problem': 'Citizens have clear opinions about what works and doesn\'t in their city — but nowhere to express them in a structured way. The platform collects these signals and makes them visible, locality by locality.',
+    'p3-f1': 'Mark on the map what you appreciate or dislike in your area',
+    'p3-f2': 'Each report is geolocated and automatically categorized',
+    'p3-f3': 'Aggregated data publicly visible — full transparency',
+    'p3-audience': 'Citizens from Romania who want to be heard',
+    'teaser-title': 'Something is coming...', 'teaser-sub': 'We keep building. No promises before time — but if you\'re curious, write to us.',
+    'pa-eyebrow': 'About Vatra Labs', 'pa-title': 'Why we exist',
+    'pa-sub': 'We didn\'t start from a market opportunity. We started from frustration — and decided to turn it into something useful.',
+    'story-label': 'The story',
+    'story-aside': 'Direct experience.\n\nBuilt for real people, not demos.',
+    'story-p1': 'We arrived in Germany and realized that <strong>nobody explains what you need to do</strong>. There\'s no clear guide written by someone who\'s been through it. There are official documents in bureaucratic German, Facebook groups full of misinformation, and friends who don\'t know more than you.',
+    'story-p2': 'That gave birth to the first product. And from the first product we learned the problem is broader: <strong>the Romanian diaspora has specific needs</strong> that generic products don\'t cover. Linguistic integration. Local bureaucracy. Connection to home.',
+    'story-p3': 'Vatra Labs exists because we decided it\'s better to build than to wait. We\'re a small team, we understand the problems from the inside, and we work slowly, carefully — not for growth at any cost.',
+    'team-label': 'Team', 'team-heading': 'Real people, not stock photos.',
+    't1-name': 'Founder', 't1-role': 'Product & Vision',
+    't1-bio': 'Lived the diaspora experience first-hand. Builds products starting from problems felt on his own skin. Believes the best product is the one you yourself would want to use.',
+    't2-role': 'Design & Content',
+    't2-bio': 'Makes sure products not only work, but also look and feel right. Believes good design is invisible — you notice when it\'s missing, not when it\'s there.',
+    'values-label': 'Our values', 'values-heading': 'Principles, not buzzwords.',
+    'v1-title': 'We build for real people', 'v1-text': 'Not for presentations or pitch decks. If a real user doesn\'t benefit from a feature, we probably won\'t build it.',
+    'v2-title': 'Simplicity before completeness', 'v2-text': 'A simple product that works beats a complex product that confuses. We launch early, iterate often.',
+    'v3-title': 'Authentic transparency', 'v3-text': 'We\'re open about what works and what doesn\'t. We don\'t do marketing that promises more than we deliver.',
+    'v4-title': 'Sustainability, not growth at any cost', 'v4-text': 'We want to build something that lasts. We don\'t chase rapid scale if it compromises our mission.',
+    'pc-eyebrow': 'Contact', 'pc-title': 'Write to us',
+    'pc-sub': 'We reply within 48 hours. We don\'t have a support department — we read and reply personally.',
+    'ci-heading': 'Open to:', 'ci-text': 'Collaborations with NGOs, schools or organizations working with the diaspora. Media partnerships. Product feedback. Or simply to tell us that what we\'re building is useful.',
+    'f-name-label': 'What\'s your name?', 'f-name-ph': 'Your name',
+    'f-ctx-label': 'In what context are you contacting us?', 'f-ctx-default': 'Choose an option...',
+    'f-ctx-1': 'User of a product', 'f-ctx-2': 'Potential partner (NGO / institution)',
+    'f-ctx-3': 'Journalist / media', 'f-ctx-4': 'Investor', 'f-ctx-5': 'Other',
+    'f-msg-label': 'Your message', 'f-msg-ph': 'Write to us freely...',
+    'f-submit': 'Send message',
+    'f-note': 'We don\'t use your data for anything other than replying to you. No newsletter, no remarketing.',
+    'f-ok-title': 'Message sent!', 'f-ok-sub': 'We\'ll reply within 48 hours.',
+    'footer-copy': '© 2024 Vatra Labs. Built with care, for community.',
+  }
+};
+
+let lang = 'ro';
+
+function applyLang(l) {
+  const t = i18n[l];
+  document.documentElement.lang = l;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (t[key] !== undefined) el.placeholder = t[key];
+  });
+
+  document.getElementById('langBtn').textContent = l === 'ro' ? 'EN' : 'RO';
+}
+
+function toggleLang() {
+  lang = lang === 'ro' ? 'en' : 'ro';
+  applyLang(lang);
+}
+</script>
+
+</body>
+</html>
