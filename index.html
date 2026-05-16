@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TeamILabs — Studio digital specializat în landing pages, CRM personalizat, software și automatizări pentru business-uri moderne." />
+  <meta name="keywords" content="dezvoltare software, CRM personalizat, landing page România, automatizare business, software contabilitate primară, digitalizare IMM" />
+  <title>TeamILabs — Digital Product Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080d18;
+      --bg2:       #0d1525;
+      --bg3:       #111e33;
+      --card:      #0f1a2e;
+      --border:    rgba(255,255,255,0.07);
+      --teal:      #2dd4bf;
+      --blue:      #3b82f6;
+      --purple:    #7c3aed;
+      --gold:      #f59e0b;
+      --text:      #f0f4ff;
+      --muted:     #7a8ba8;
+      --subtle:    #3a4a62;
+      --radius:    14px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--subtle); border-radius: 3px; }
+
+    /* ── UTILITIES ── */
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--teal); background: rgba(45,212,191,.1);
+      border: 1px solid rgba(45,212,191,.2); border-radius: 100px; padding: 4px 12px;
+      margin-bottom: 20px;
+    }
+    .tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+    .section-title {
+      font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 800;
+      line-height: 1.15; letter-spacing: -.02em;
+      background: linear-gradient(135deg, #f0f4ff 0%, #94a8c8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .section-sub {
+      margin-top: 14px; font-size: 1.05rem; color: var(--muted); max-width: 600px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 600; font-size: .9rem;
+      cursor: pointer; text-decoration: none; transition: all .2s ease; border: none; outline: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      color: #080d18;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(45,212,191,.25); }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.15); transform: translateY(-1px); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      transition: background .3s, backdrop-filter .3s, border-color .3s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(8,13,24,.85); backdrop-filter: blur(20px);
+      border-color: var(--border);
+    }
+    .nav-inner {
+      max-width: 1120px; margin: 0 auto; padding: 0 24px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.1rem; font-weight: 800; letter-spacing: -.02em;
+      text-decoration: none; color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: #080d18;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      font-size: .85rem; font-weight: 500; color: var(--muted);
+      text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px; cursor: pointer;
+      background: none; border: none; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px; transition: all .3s;
+    }
+    .mobile-menu {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: rgba(8,13,24,.97); backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border); padding: 24px;
+      flex-direction: column; gap: 20px; z-index: 99;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 1rem; font-weight: 500; color: var(--muted);
+      text-decoration: none; padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .mobile-menu a:hover { color: var(--text); }
+    .mobile-menu .btn { width: 100%; justify-content: center; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 100px 0 60px;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(45,212,191,.07) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 50% at 80% 60%, rgba(59,130,246,.06) 0%, transparent 70%);
+    }
+    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px;
+      margin-bottom: 28px;
+    }
+    .hero-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+    .hero-headline {
+      font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.1; letter-spacing: -.03em;
+      margin-bottom: 22px;
+    }
+    .hero-headline .accent {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub { font-size: 1.05rem; color: var(--muted); line-height: 1.7; max-width: 480px; margin-bottom: 36px; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex; gap: 32px; margin-top: 48px;
+      padding-top: 36px; border-top: 1px solid var(--border);
+    }
+    .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+    .stat-label { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .hero-visual {
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .hero-card {
+      width: 100%; max-width: 420px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 28px; position: relative; overflow: hidden;
+    }
+    .hero-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(45,212,191,.4), transparent);
+    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .card-dots { display: flex; gap: 6px; }
+    .card-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .card-dots span:nth-child(1) { background: #ef4444; }
+    .card-dots span:nth-child(2) { background: #f59e0b; }
+    .card-dots span:nth-child(3) { background: #22c55e; }
+    .card-badge { font-size: 10px; font-weight: 600; letter-spacing: .06em; color: var(--teal);
+      background: rgba(45,212,191,.1); border: 1px solid rgba(45,212,191,.2); border-radius: 6px; padding: 3px 8px; }
+    .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .metric-box {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+    }
+    .metric-val { font-size: 1.4rem; font-weight: 800; }
+    .metric-val.teal { color: var(--teal); }
+    .metric-val.blue { color: var(--blue); }
+    .metric-label { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+    .progress-list { display: flex; flex-direction: column; gap: 10px; }
+    .progress-item { display: flex; flex-direction: column; gap: 5px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); }
+    .progress-bar { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 1.5s ease; }
+    .fill-teal { background: linear-gradient(90deg, var(--teal), var(--blue)); }
+    .fill-blue { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+    .fill-purple { background: linear-gradient(90deg, var(--purple), #a855f7); }
+    .floating-badge {
+      position: absolute; bottom: -12px; right: -12px;
+      background: linear-gradient(135deg, var(--teal), var(--blue)); color: #080d18;
+      font-size: .75rem; font-weight: 700; border-radius: 100px; padding: 8px 16px;
+      box-shadow: 0 8px 24px rgba(45,212,191,.3);
+    }
+
+    /* ── SECTIONS COMMON ── */
+    section { padding: 96px 0; }
+    section:nth-child(even) { background: linear-gradient(180deg, transparent 0%, rgba(13,21,37,.5) 50%, transparent 100%); }
+    .section-head { text-align: center; margin-bottom: 64px; }
+    .section-head .section-sub { margin: 14px auto 0; }
+
+    /* ── SERVICES ── */
+    .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .service-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px; transition: border-color .2s, transform .2s;
+      position: relative; overflow: hidden;
+    }
+    .service-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent, var(--teal)), transparent);
+      opacity: 0; transition: opacity .2s;
+    }
+    .service-card:hover { border-color: rgba(255,255,255,.13); transform: translateY(-3px); }
+    .service-card:hover::before { opacity: 1; }
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--bg2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 20px;
+    }
+    .service-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+    .service-desc { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-bottom: 20px; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-size: .72rem; font-weight: 500; color: var(--muted);
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 100px; padding: 3px 10px;
+    }
+    .chip.accent { color: var(--teal); background: rgba(45,212,191,.08); border-color: rgba(45,212,191,.2); }
+
+    /* ── PROJECTS ── */
+    .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .project-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: transform .25s, border-color .25s;
+    }
+    .project-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,.13); }
+    .project-thumb {
+      height: 180px; display: flex; align-items: center; justify-content: center;
+      font-size: 52px; position: relative; overflow: hidden;
+    }
+    .project-thumb::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 40%, var(--card) 100%);
+    }
+    .project-body { padding: 24px; }
+    .project-status {
+      font-size: .7rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      border-radius: 100px; padding: 3px 10px; margin-bottom: 12px; display: inline-block;
+    }
+    .status-wip { color: var(--gold); background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.25); }
+    .status-live { color: #22c55e; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2); }
+    .status-beta { color: var(--blue); background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.2); }
+    .project-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .project-desc { font-size: .84rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    /* ── ABOUT ── */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .about-text .section-sub { max-width: 100%; }
+    .about-values { margin-top: 36px; display: flex; flex-direction: column; gap: 16px; }
+    .value-row {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    }
+    .value-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .value-title { font-size: .9rem; font-weight: 600; margin-bottom: 3px; }
+    .value-desc { font-size: .82rem; color: var(--muted); }
+    .about-visual { display: flex; flex-direction: column; gap: 16px; }
+    .about-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;
+    }
+    .about-card-title { font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+    .stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stack-item {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 10px; text-align: center; font-size: .78rem; font-weight: 500; color: var(--muted);
+      transition: color .2s, border-color .2s;
+    }
+    .stack-item:hover { color: var(--text); border-color: rgba(255,255,255,.15); }
+    .focus-list { display: flex; flex-direction: column; gap: 8px; }
+    .focus-item {
+      display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--muted);
+    }
+    .focus-item::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+    /* ── CONTACT ── */
+    #contact { background: linear-gradient(180deg, transparent, rgba(13,21,37,.6) 40%, transparent); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 56px; align-items: start; }
+    .contact-info { display: flex; flex-direction: column; gap: 24px; }
+    .contact-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 18px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    }
+    .contact-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--bg2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+    }
+    .contact-label { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+    .contact-value { font-size: .9rem; font-weight: 500; margin-top: 2px; }
+    .contact-value a { color: var(--text); text-decoration: none; }
+    .contact-value a:hover { color: var(--teal); }
+    .form-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px;
+      position: relative; overflow: hidden;
+    }
+    .form-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(45,212,191,.4), transparent);
+    }
+    .form-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+    .form-sub { font-size: .85rem; color: var(--muted); margin-bottom: 28px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: .8rem; font-weight: 500; color: var(--muted); }
+    .form-group input, .form-group textarea, .form-group select {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      color: var(--text); font-family: inherit; font-size: .9rem; padding: 11px 14px;
+      outline: none; transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: rgba(45,212,191,.5);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--subtle); }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-group select option { background: var(--bg2); }
+    .form-submit { margin-top: 20px; }
+    .form-submit .btn { width: 100%; justify-content: center; }
+    .form-success {
+      display: none; text-align: center; padding: 24px;
+      color: var(--teal); font-weight: 600;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border); padding: 48px 0 32px;
+    }
+    .footer-inner {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px;
+    }
+    .footer-brand .nav-logo { font-size: 1rem; margin-bottom: 12px; display: flex; }
+    .footer-desc { font-size: .82rem; color: var(--muted); line-height: 1.65; max-width: 220px; }
+    .footer-col-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 16px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { font-size: .84rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 24px; border-top: 1px solid var(--border);
+      font-size: .78rem; color: var(--subtle);
+    }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--text); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-visual { order: -1; }
+      .hero-card { max-width: 100%; }
+      .services-grid { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .metric-row { grid-template-columns: 1fr 1fr; }
+      .hero-stats { gap: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      section { padding: 64px 0; }
+    }
+
+    /* ── ANIMATIONS ── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── GLOW ORBS ── */
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      pointer-events: none; z-index: 0; opacity: .12;
+    }
+    .orb1 { width: 500px; height: 500px; background: var(--teal); top: -200px; left: -150px; }
+    .orb2 { width: 400px; height: 400px; background: var(--blue); bottom: 10%; right: -100px; }
+    * { position: relative; z-index: 1; }
+    .orb { z-index: 0; }
+  </style>
+</head>
+<body>
+
+<!-- AMBIENT ORBS -->
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- ══════════ NAV ══════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <div class="nav-logo-icon">TI</div>
+      TeamILabs
+    </a>
+    <div class="nav-links">
+      <a href="#services">Servicii</a>
+      <a href="#projects">Proiecte</a>
+      <a href="#about">Despre</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#contact" class="btn btn-primary">Solicită ofertă</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Meniu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" onclick="closeMobile()">Servicii</a>
+  <a href="#projects" onclick="closeMobile()">Proiecte</a>
+  <a href="#about" onclick="closeMobile()">Despre</a>
+  <a href="#contact" onclick="closeMobile()">Contact</a>
+  <a href="#contact" class="btn btn-primary" onclick="closeMobile()">Solicită ofertă</a>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+
+      <!-- Left -->
+      <div>
+        <div class="hero-badge">
+          <div class="hero-badge-dot"></div>
+          Digital Product Studio
+        </div>
+        <h1 class="hero-headline">
+          Construim produse digitale <span class="accent">utile, moderne</span> și scalabile.
+        </h1>
+        <p class="hero-sub">
+          Landing pages, CRM-uri personalizate și soluții software pentru business-uri moderne și comunități digitale.
+        </p>
+        <div class="hero-btns">
+          <a href="#projects" class="btn btn-primary">
+            <span>↗</span> Vezi proiectele
+          </a>
+          <a href="#contact" class="btn btn-ghost">Discută cu noi</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="stat-num">3+</div>
+            <div class="stat-label">Produse active</div>
+          </div>
+          <div>
+            <div class="stat-num">4</div>
+            <div class="stat-label">Servicii core</div>
+          </div>
+          <div>
+            <div class="stat-num">100%</div>
+            <div class="stat-label">Custom build</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — dashboard card -->
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="card-header">
+            <div class="card-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="card-badge">LIVE DASHBOARD</div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-box">
+              <div class="metric-val teal">+48%</div>
+              <div class="metric-label">Conversii</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val blue">1.2s</div>
+              <div class="metric-label">Load time</div>
+            </div>
+          </div>
+          <div class="progress-list">
+            <div class="progress-item">
+              <div class="progress-label"><span>Landing Pages</span><span>92%</span></div>
+              <div class="progress-bar"><div class="progress-fill fill-teal" style="width:92%"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label"><span>CRM Custom</span><span>85%</span></div>
+              <div class="progress-bar"><div class="progress-fill fill-blue" style="width:85%"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label"><span>Automatizări</span><span>78%</span></div>
+              <div class="progress-bar"><div class="progress-fill fill-purple" style="width:78%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="floating-badge">MVP → Produs ✓</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SERVICES ══════════ -->
+<section id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag">Servicii</span>
+      <h2 class="section-title">Ce construim pentru tine</h2>
+      <p class="section-sub">Soluții adaptate nevoilor reale — nu pachete generice. Fiecare proiect e construit specific pentru contextul tău.</p>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card reveal" style="--accent: #2dd4bf">
+        <div class="service-icon">🎯</div>
+        <div class="service-title">Landing Pages</div>
+        <div class="service-desc">
+          Pagini web moderne, rapide și optimizate pentru conversie. Design premium, responsive, cu SEO integrat și formulare de contact funcționale.
+        </div>
+        <div class="service-tags">
+          <span class="chip accent">Responsive</span>
+          <span class="chip">SEO-ready</span>
+          <span class="chip">Conversie</span>
+          <span class="chip">Branding</span>
+          <span class="chip">Next.js</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal" style="--accent: #3b82f6">
+        <div class="service-icon">⚙️</div>
+        <div class="service-title">CRM Personalizat</div>
+        <div class="service-desc">
+          Soluții CRM adaptate exact nevoilor tale: management clienți, lead tracking, dashboard analytics, notificări automate și integrare Telegram/email.
+        </div>
+        <div class="service-tags">
+          <span class="chip" style="color:var(--blue);background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.2)">Lead tracking</span>
+          <span class="chip">Dashboard</span>
+          <span class="chip">Notificări</span>
+          <span class="chip">Telegram API</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal" style="--accent: #7c3aed">
+        <div class="service-icon">📊</div>
+        <div class="service-title">Software Contabilitate Primară</div>
+        <div class="service-desc">
+          Digitalizare simplă pentru freelanceri și microîntreprinderi. Upload documente, centralizare facturi, rapoarte, export PDF/Excel și dashboard financiar.
+        </div>
+        <div class="service-tags">
+          <span class="chip" style="color:#a855f7;background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.2)">Freelanceri</span>
+          <span class="chip">IMM-uri</span>
+          <span class="chip">Export PDF</span>
+          <span class="chip">Rapoarte</span>
+        </div>
+      </div>
+
+      <div class="service-card reveal" style="--accent: #f59e0b">
+        <div class="service-icon">🤖</div>
+        <div class="service-title">Automatizări & Tools</div>
+        <div class="service-desc">
+          Dashboard-uri interne, automatizare formulare, sisteme de notificări, Telegram bots și AI assistants pentru optimizarea proceselor de business.
+        </div>
+        <div class="service-tags">
+          <span class="chip" style="color:var(--gold);background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)">AI Tools</span>
+          <span class="chip">Bots</span>
+          <span class="chip">Analytics</span>
+          <span class="chip">Automatizare</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PROJECTS ══════════ -->
+<section id="projects">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag">Proiecte</span>
+      <h2 class="section-title">Produse construite de noi</h2>
+      <p class="section-sub">Nu doar site-uri — produse digitale reale care rezolvă probleme reale pentru comunități și business-uri.</p>
+    </div>
+    <div class="projects-grid">
+
+      <div class="project-card reveal">
+        <div class="project-thumb" style="background: linear-gradient(135deg, #0d1525, #1a2a45);">
+          🇷🇴
+        </div>
+        <div class="project-body">
+          <div class="project-status status-wip">În dezvoltare</div>
+          <div class="project-name">România prin ochii tăi</div>
+          <div class="project-desc">
+            Platformă community-driven pentru înțelegerea percepției reale a românilor asupra zonelor și problemelor locale. Feedback civic, analytics, insights.
+          </div>
+          <div class="project-tags">
+            <span class="chip">Community</span>
+            <span class="chip">Analytics</span>
+            <span class="chip">Civic</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-thumb" style="background: linear-gradient(135deg, #0d1a25, #1a2d45);">
+          🇩🇪
+        </div>
+        <div class="project-body">
+          <div class="project-status status-beta">Beta</div>
+          <div class="project-name">Ghidul românului în Germania</div>
+          <div class="project-desc">
+            Platformă informativă pentru diaspora românească: acte, sistem medical, taxe, locuințe, muncă. Direcție: AI assistant și onboarding digital.
+          </div>
+          <div class="project-tags">
+            <span class="chip">Diaspora</span>
+            <span class="chip">AI Assistant</span>
+            <span class="chip">Onboarding</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-thumb" style="background: linear-gradient(135deg, #0d1520, #1a253a);">
+          💬
+        </div>
+        <div class="project-body">
+          <div class="project-status status-wip">În dezvoltare</div>
+          <div class="project-name">Blablatalk</div>
+          <div class="project-desc">
+            Platformă educațională focusată pe conversație și learning practic. Experiență premium modernă pentru adulți care vor să învețe după program.
+          </div>
+          <div class="project-tags">
+            <span class="chip">EdTech</span>
+            <span class="chip">Conversații</span>
+            <span class="chip">Interactive</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ABOUT ══════════ -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-text reveal">
+        <span class="tag">Despre</span>
+        <h2 class="section-title">Un studio care construiește produse, nu doar pagini web.</h2>
+        <p class="section-sub">
+          TeamILabs este un digital product studio. Construim soluții software utile — pentru diaspora românească, pentru antreprenori, pentru business-uri care vor să crească fără complexitate inutilă.
+        </p>
+        <div class="about-values">
+          <div class="value-row">
+            <div class="value-icon">⚡</div>
+            <div>
+              <div class="value-title">Execuție practică</div>
+              <div class="value-desc">Livram produse funcționale, nu promisiuni. De la idee la produs real în timp minim.</div>
+            </div>
+          </div>
+          <div class="value-row">
+            <div class="value-icon">🎯</div>
+            <div>
+              <div class="value-title">Focus pe claritate</div>
+              <div class="value-desc">Fără buzzwords, fără over-engineering. Soluții clare pentru probleme clare.</div>
+            </div>
+          </div>
+          <div class="value-row">
+            <div class="value-icon">🌍</div>
+            <div>
+              <div class="value-title">Orientat spre comunitate</div>
+              <div class="value-desc">Construim pentru românii din România și din diaspora — probleme pe care le înțelegem direct.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-visual reveal">
+        <div class="about-card">
+          <div class="about-card-title">Tech Stack</div>
+          <div class="stack-grid">
+            <div class="stack-item">Next.js</div>
+            <div class="stack-item">React</div>
+            <div class="stack-item">TailwindCSS</div>
+            <div class="stack-item">FastAPI</div>
+            <div class="stack-item">Node.js</div>
+            <div class="stack-item">Python</div>
+            <div class="stack-item">Vercel</div>
+            <div class="stack-item">Hetzner</div>
+            <div class="stack-item">Cloudflare</div>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-title">Focus Areas</div>
+          <div class="focus-list">
+            <div class="focus-item">Produse SaaS proprii</div>
+            <div class="focus-item">Platforme pentru diaspora</div>
+            <div class="focus-item">Automatizare business</div>
+            <div class="focus-item">Digitalizare IMM-uri</div>
+            <div class="focus-item">AI tools & assistants</div>
+            <div class="focus-item">Educație digitală</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CONTACT ══════════ -->
+<section id="contact">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="tag">Contact</span>
+      <h2 class="section-title">Hai să construim ceva împreună</h2>
+      <p class="section-sub">Spune-ne despre proiectul tău. Răspundem în 24 de ore.</p>
+    </div>
+    <div class="contact-grid">
+
+      <div class="contact-info reveal">
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-value"><a href="mailto:hello@teamilabs.com">hello@teamilabs.com</a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">💬</div>
+          <div>
+            <div class="contact-label">WhatsApp</div>
+            <div class="contact-value"><a href="https://wa.me/40700000000">+40 700 000 000</a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">Locație</div>
+            <div class="contact-value">România · Germania</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
+          <div>
+            <div class="contact-label">Timp de răspuns</div>
+            <div class="contact-value">Sub 24 de ore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card reveal">
+        <div class="form-title">Solicită o ofertă</div>
+        <div class="form-sub">Completează formularul și te contactăm cu detalii și un estimat.</div>
+        <form id="contactForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nume</label>
+              <input type="text" placeholder="Numele tău" required />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" placeholder="email@exemplu.com" required />
+            </div>
+            <div class="form-group full">
+              <label>Serviciu dorit</label>
+              <select>
+                <option value="">Selectează...</option>
+                <option>Landing Page</option>
+                <option>CRM Personalizat</option>
+                <option>Software Contabilitate</option>
+                <option>Automatizări & Tools</option>
+                <option>Alt proiect</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Descrie proiectul tău</label>
+              <textarea placeholder="Spune-ne despre ce ai nevoie, buget estimat, deadline..."></textarea>
+            </div>
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary">Trimite mesajul →</button>
+          </div>
+        </form>
+        <div class="form-success" id="formSuccess">
+          ✅ Mesaj trimis! Te contactăm în maxim 24 de ore.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#hero" class="nav-logo">
+          <div class="nav-logo-icon">TI</div>
+          TeamILabs
+        </a>
+        <p class="footer-desc">Studio digital specializat în produse software utile, automatizări și soluții pentru business-uri moderne.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Servicii</div>
+        <div class="footer-links">
+          <a href="#services">Landing Pages</a>
+          <a href="#services">CRM Personalizat</a>
+          <a href="#services">Software Contabilitate</a>
+          <a href="#services">Automatizări</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Proiecte</div>
+        <div class="footer-links">
+          <a href="#projects">România prin ochii tăi</a>
+          <a href="#projects">Ghidul în Germania</a>
+          <a href="#projects">Blablatalk</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Contact</div>
+        <div class="footer-links">
+          <a href="mailto:hello@teamilabs.com">hello@teamilabs.com</a>
+          <a href="#contact">Solicită ofertă</a>
+          <a href="#about">Despre noi</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 TeamILabs. Toate drepturile rezervate.</span>
+      <span>Construit cu <span style="color:var(--teal)">♥</span> în România</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* NAV SCROLL */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  /* HAMBURGER */
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
+  function closeMobile() { mobileMenu.classList.remove('open'); }
+
+  /* SCROLL REVEAL */
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+
+  /* CONTACT FORM */
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    this.style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+  });
+
+  /* ACTIVE NAV LINK */
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--text)' : '';
+    });
+  });
+</script>
+</body>
+</html>
