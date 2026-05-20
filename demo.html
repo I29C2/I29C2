@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Control Hub — ERP Light pentru IMM-uri</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --bg2: #161b27;
+  --bg3: #1e2535;
+  --border: #2a3348;
+  --text: #e8eaf0;
+  --text2: #8892a4;
+  --accent: #4f8ef7;
+  --accent2: #3ecfcf;
+  --green: #34d399;
+  --red: #f87171;
+  --orange: #fb923c;
+  --yellow: #fbbf24;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* LOGIN */
+#login-page { display:flex; align-items:center; justify-content:center; min-height:100vh; background: linear-gradient(135deg, #0f1117 0%, #161b27 50%, #0f1117 100%); }
+.login-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 48px 40px; width: 420px; box-shadow: var(--shadow); }
+.login-logo { display:flex; align-items:center; gap:10px; margin-bottom:32px; }
+.login-logo .logo-icon { width:40px; height:40px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; color:#fff; }
+.login-logo .logo-text { font-size:20px; font-weight:700; color:var(--text); }
+.login-logo .logo-sub { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; }
+.login-title { font-size:26px; font-weight:700; margin-bottom:8px; }
+.login-sub { color:var(--text2); font-size:14px; margin-bottom:32px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.form-group input { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; color:var(--text); font-size:14px; outline:none; transition:border 0.2s; }
+.form-group input:focus { border-color:var(--accent); }
+.btn-primary { width:100%; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; border:none; border-radius:var(--radius-sm); padding:13px; font-size:15px; font-weight:600; cursor:pointer; margin-top:8px; transition:opacity 0.2s; }
+.btn-primary:hover { opacity:0.9; }
+.login-hint { text-align:center; color:var(--text2); font-size:12px; margin-top:16px; }
+.login-snapshot { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-top:24px; }
+.login-snapshot-title { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; }
+.snapshot-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; }
+.snapshot-label { font-size:12px; color:var(--text2); }
+.snapshot-val { font-size:12px; font-weight:600; color:var(--green); }
+.snapshot-val.warn { color:var(--orange); }
+
+/* APP SHELL */
+#app { display:none; flex-direction:row; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar { width:220px; min-width:220px; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:0; position:fixed; top:0; left:0; height:100vh; z-index:100; }
+.sidebar-logo { display:flex; align-items:center; gap:10px; padding:20px 18px 16px; border-bottom:1px solid var(--border); }
+.sidebar-logo .logo-icon { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+.sidebar-logo .logo-name { font-size:15px; font-weight:700; }
+.sidebar-logo .logo-tag { font-size:10px; color:var(--text2); }
+.sidebar-company { padding:12px 18px; border-bottom:1px solid var(--border); }
+.company-badge { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 10px; cursor:pointer; }
+.company-name { font-size:13px; font-weight:600; }
+.company-type { font-size:11px; color:var(--text2); }
+nav { flex:1; padding:12px 0; overflow-y:auto; }
+.nav-section { padding:8px 18px 4px; font-size:10px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:1px; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:9px 18px; cursor:pointer; border-radius:0; font-size:13px; font-weight:500; color:var(--text2); transition:all 0.15s; border-left:3px solid transparent; }
+.nav-item:hover { background:var(--bg3); color:var(--text); }
+.nav-item.active { background:rgba(79,142,247,0.1); color:var(--accent); border-left-color:var(--accent); }
+.nav-item .nav-icon { font-size:16px; width:18px; text-align:center; }
+.nav-badge { margin-left:auto; background:var(--red); color:#fff; font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px; }
+.sidebar-bottom { padding:12px 18px; border-top:1px solid var(--border); }
+.user-row { display:flex; align-items:center; gap:10px; padding:8px 0; }
+.user-avatar { width:30px; height:30px; background:linear-gradient(135deg,var(--accent),#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; }
+.user-name { font-size:12px; font-weight:600; }
+.user-role { font-size:10px; color:var(--text2); }
+
+/* MAIN CONTENT */
+.main { margin-left:220px; flex:1; padding:0; min-height:100vh; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 28px; border-bottom:1px solid var(--border); background:var(--bg); position:sticky; top:0; z-index:50; }
+.topbar-title { font-size:18px; font-weight:700; }
+.topbar-sub { font-size:12px; color:var(--text2); margin-top:2px; }
+.topbar-right { display:flex; align-items:center; gap:14px; }
+.topbar-btn { background:var(--bg3); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; transition:border 0.2s; }
+.topbar-btn:hover { border-color:var(--accent); color:var(--accent); }
+.notif-btn { position:relative; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 10px; cursor:pointer; font-size:16px; }
+.notif-dot { position:absolute; top:5px; right:5px; width:7px; height:7px; background:var(--red); border-radius:50%; }
+.content { padding:28px; }
+
+/* CARDS */
+.kpi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+.kpi-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:20px; transition:border 0.2s; }
+.kpi-card:hover { border-color:var(--accent); }
+.kpi-label { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.kpi-value { font-size:26px; font-weight:700; letter-spacing:-0.5px; margin-bottom:4px; }
+.kpi-change { font-size:12px; display:flex; align-items:center; gap:4px; }
+.change-up { color:var(--green); }
+.change-down { color:var(--red); }
+.change-neutral { color:var(--text2); }
+
+/* CHARTS */
+.charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:24px; }
+.chart-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.chart-title { font-size:14px; font-weight:700; margin-bottom:4px; }
+.chart-sub { font-size:12px; color:var(--text2); margin-bottom:16px; }
+.chart-container { position:relative; height:200px; }
+
+/* INSIGHTS */
+.insights-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:24px; }
+.insights-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.section-title { font-size:14px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.insight-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+.insight-item:last-child { border-bottom:none; }
+.insight-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.insight-text { font-size:13px; color:var(--text); line-height:1.5; }
+.insight-text strong { color:var(--text); }
+
+/* NOTIFICATIONS */
+.notif-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+.notif-item:last-child { border-bottom:none; }
+.notif-dot-color { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.notif-text { font-size:12px; color:var(--text2); line-height:1.5; }
+.notif-text strong { color:var(--text); font-size:13px; display:block; margin-bottom:2px; }
+.notif-time { font-size:11px; color:var(--text2); margin-top:3px; }
+
+/* TABLE */
+.table-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:24px; }
+.table-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+.table-filters { display:flex; gap:8px; align-items:center; }
+.filter-btn { background:var(--bg3); border:1px solid var(--border); color:var(--text2); border-radius:20px; padding:5px 12px; font-size:12px; cursor:pointer; transition:all 0.15s; }
+.filter-btn.active, .filter-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(79,142,247,0.08); }
+.search-box { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 12px; color:var(--text); font-size:12px; outline:none; width:200px; }
+.search-box:focus { border-color:var(--accent); }
+table { width:100%; border-collapse:collapse; }
+thead tr { border-bottom:1px solid var(--border); }
+th { padding:10px 20px; text-align:left; font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.7px; }
+td { padding:13px 20px; font-size:13px; border-bottom:1px solid rgba(42,51,72,0.5); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,0.02); }
+.td-main { font-weight:600; color:var(--text); }
+.td-sub { font-size:11px; color:var(--text2); margin-top:2px; }
+
+/* STATUS BADGE */
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+.badge-green { background:rgba(52,211,153,0.12); color:var(--green); }
+.badge-red { background:rgba(248,113,113,0.12); color:var(--red); }
+.badge-orange { background:rgba(251,146,60,0.12); color:var(--orange); }
+.badge-blue { background:rgba(79,142,247,0.12); color:var(--accent); }
+.badge-gray { background:rgba(136,146,164,0.12); color:var(--text2); }
+
+/* ACTION BUTTONS */
+.btn-sm { background:var(--bg3); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.btn-sm:hover { border-color:var(--accent); color:var(--accent); }
+.btn-accent { background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; color:#fff; border-radius:var(--radius-sm); padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; transition:opacity 0.2s; }
+.btn-accent:hover { opacity:0.9; }
+
+/* CASHFLOW PAGE */
+.cashflow-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.cashflow-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.cf-label { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
+.cf-value { font-size:24px; font-weight:700; }
+.risk-bar { height:6px; background:var(--bg3); border-radius:3px; margin-top:8px; overflow:hidden; }
+.risk-fill { height:100%; border-radius:3px; transition:width 0.5s; }
+
+/* DOCUMENTS */
+.docs-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.doc-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px; cursor:pointer; transition:border 0.2s; }
+.doc-card:hover { border-color:var(--accent); }
+.doc-icon { font-size:32px; margin-bottom:10px; }
+.doc-name { font-size:13px; font-weight:600; margin-bottom:4px; }
+.doc-meta { font-size:11px; color:var(--text2); }
+
+/* TASKS */
+.tasks-list { display:flex; flex-direction:column; gap:10px; }
+.task-item { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:border 0.2s; }
+.task-item:hover { border-color:var(--accent); }
+.task-checkbox { width:18px; height:18px; border:2px solid var(--border); border-radius:4px; flex-shrink:0; transition:all 0.2s; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.task-checkbox.done { background:var(--green); border-color:var(--green); }
+.task-text { flex:1; font-size:13px; font-weight:500; }
+.task-text.done { text-decoration:line-through; color:var(--text2); }
+.task-due { font-size:11px; color:var(--text2); }
+.task-priority { padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; text-transform:uppercase; }
+.priority-high { background:rgba(248,113,113,0.12); color:var(--red); }
+.priority-med { background:rgba(251,146,60,0.12); color:var(--orange); }
+.priority-low { background:rgba(52,211,153,0.12); color:var(--green); }
+
+/* AI ASSISTANT */
+.ai-card { background:linear-gradient(135deg, rgba(79,142,247,0.08), rgba(62,207,207,0.08)); border:1px solid rgba(79,142,247,0.3); border-radius:var(--radius); padding:24px; margin-bottom:24px; }
+.ai-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.ai-avatar { width:36px; height:36px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.ai-name { font-size:15px; font-weight:700; }
+.ai-status { font-size:11px; color:var(--accent2); display:flex; align-items:center; gap:4px; }
+.ai-dot { width:6px; height:6px; background:var(--green); border-radius:50%; }
+.ai-messages { display:flex; flex-direction:column; gap:12px; }
+.ai-msg { background:rgba(0,0,0,0.2); border-radius:var(--radius-sm); padding:12px 16px; font-size:13px; line-height:1.6; border-left:3px solid; }
+.ai-msg.insight { border-left-color:var(--accent); }
+.ai-msg.warning { border-left-color:var(--orange); }
+.ai-msg.alert { border-left-color:var(--red); }
+.ai-msg.positive { border-left-color:var(--green); }
+.ai-msg-type { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px; opacity:0.7; }
+
+/* ANALYTICS */
+.analytics-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+
+/* CLIENTS */
+.client-risk { display:flex; align-items:center; gap:6px; }
+.risk-dot { width:8px; height:8px; border-radius:50%; }
+
+/* SETTINGS */
+.settings-section { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px; }
+.settings-title { font-size:15px; font-weight:700; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+.settings-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(42,51,72,0.5); }
+.settings-row:last-child { border-bottom:none; }
+.settings-label { font-size:13px; font-weight:500; }
+.settings-desc { font-size:11px; color:var(--text2); margin-top:2px; }
+.toggle { width:40px; height:22px; background:var(--bg3); border-radius:11px; position:relative; cursor:pointer; border:1px solid var(--border); transition:background 0.2s; }
+.toggle.on { background:var(--accent); border-color:var(--accent); }
+.toggle::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:transform 0.2s; }
+.toggle.on::after { transform:translateX(18px); }
+
+/* PROGRESS BAR */
+.progress { height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; margin-top:8px; }
+.progress-fill { height:100%; border-radius:3px; }
+
+/* EMPTY STATE */
+.empty-state { text-align:center; padding:60px 20px; color:var(--text2); }
+.empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+.empty-state p { font-size:14px; }
+
+/* MODAL OVERLAY */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:200; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:32px; width:500px; max-width:90vw; box-shadow:var(--shadow); }
+.modal-title { font-size:18px; font-weight:700; margin-bottom:20px; }
+.modal-close { float:right; background:none; border:none; color:var(--text2); font-size:20px; cursor:pointer; margin-top:-4px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text2); }
+
+/* PAGE TRANSITION */
+.page { display:none; }
+.page.active { display:block; }
+
+/* EXPENSE UPLOAD */
+.upload-zone { border:2px dashed var(--border); border-radius:var(--radius); padding:40px; text-align:center; cursor:pointer; transition:border 0.2s; margin-bottom:20px; }
+.upload-zone:hover { border-color:var(--accent); }
+.upload-icon { font-size:40px; margin-bottom:12px; }
+.upload-text { font-size:14px; color:var(--text2); }
+.upload-text strong { color:var(--accent); }
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width:1200px) {
+  .kpi-grid { grid-template-columns:repeat(2,1fr); }
+  .cashflow-grid { grid-template-columns:repeat(2,1fr); }
+  .docs-grid { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">B</div>
+      <div>
+        <div class="logo-text">Business Control Hub</div>
+        <div class="logo-sub">ERP Light pentru IMM-uri</div>
+      </div>
+    </div>
+    <div class="login-title">Bun venit înapoi</div>
+    <div class="login-sub">Autentifică-te pentru a accesa platforma</div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" value="director@constructii-ro.ro" placeholder="email@firma.ro">
+    </div>
+    <div class="form-group">
+      <label>Parolă</label>
+      <input type="password" value="••••••••" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="loginDemo()">Intră în platformă</button>
+    <div class="login-hint">Demo — fără date reale • Apasă orice buton pentru acces</div>
+
+    <div class="login-snapshot">
+      <div class="login-snapshot-title">📊 Situația zilei</div>
+      <div class="snapshot-row">
+        <span class="snapshot-label">Venituri luna curentă</span>
+        <span class="snapshot-val">147.320 RON</span>
+      </div>
+      <div class="snapshot-row">
+        <span class="snapshot-label">Facturi neîncasate</span>
+        <span class="snapshot-val warn">38.500 RON</span>
+      </div>
+      <div class="snapshot-row">
+        <span class="snapshot-label">Alerte active</span>
+        <span class="snapshot-val warn">3 notificări</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP SHELL ===== -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">B</div>
+      <div>
+        <div class="logo-name">Business Hub</div>
+        <div class="logo-tag">ERP Light</div>
+      </div>
+    </div>
+    <div class="sidebar-company">
+      <div class="company-badge">
+        <div class="company-name">Construcții ROM SRL</div>
+        <div class="company-type">CUI: RO12345678</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('invoices',this)">
+        <span class="nav-icon">🧾</span> Facturi
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" onclick="showPage('expenses',this)">
+        <span class="nav-icon">💳</span> Cheltuieli
+      </div>
+      <div class="nav-item" onclick="showPage('clients',this)">
+        <span class="nav-icon">👥</span> Clienți
+      </div>
+      <div class="nav-section">Finanțe</div>
+      <div class="nav-item" onclick="showPage('cashflow',this)">
+        <span class="nav-icon">💰</span> Cashflow
+      </div>
+      <div class="nav-item" onclick="showPage('analytics',this)">
+        <span class="nav-icon">📈</span> Analize
+      </div>
+      <div class="nav-section">Operațional</div>
+      <div class="nav-item" onclick="showPage('documents',this)">
+        <span class="nav-icon">📁</span> Documente
+      </div>
+      <div class="nav-item" onclick="showPage('tasks',this)">
+        <span class="nav-icon">✅</span> Sarcini
+        <span class="nav-badge">5</span>
+      </div>
+      <div class="nav-section">AI</div>
+      <div class="nav-item" onclick="showPage('ai',this)">
+        <span class="nav-icon">🤖</span> Asistent AI
+      </div>
+      <div class="nav-section">Cont</div>
+      <div class="nav-item" onclick="showPage('settings',this)">
+        <span class="nav-icon">⚙️</span> Setări
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-row">
+        <div class="user-avatar">AD</div>
+        <div>
+          <div class="user-name">Andrei Dumitrescu</div>
+          <div class="user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="page-title">Dashboard</div>
+        <div class="topbar-sub" id="page-sub">Miercuri, 20 Mai 2026 — Situația firmei</div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="showModal('new-invoice-modal')">+ Factură nouă</button>
+        <button class="topbar-btn" onclick="showModal('new-expense-modal')">+ Cheltuială</button>
+        <div class="notif-btn" onclick="showPage('tasks',document.querySelector('[onclick*=tasks]'))">🔔<div class="notif-dot"></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ======= DASHBOARD PAGE ======= -->
+      <div id="page-dashboard" class="page active">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">💵 Venituri Luna Curentă</div>
+            <div class="kpi-value" style="color:var(--green)">147.320 RON</div>
+            <div class="kpi-change change-up">↑ 8.4% față de luna trecută</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">💸 Cheltuieli Totale</div>
+            <div class="kpi-value">98.740 RON</div>
+            <div class="kpi-change change-down">↑ 12% față de luna trecută</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">📈 Profit Estimat</div>
+            <div class="kpi-value" style="color:var(--accent2)">48.580 RON</div>
+            <div class="kpi-change change-up">↑ 3.1% față de luna trecută</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">🧾 Facturi Neîncasate</div>
+            <div class="kpi-value" style="color:var(--orange)">38.500 RON</div>
+            <div class="kpi-change change-neutral">3 facturi restante</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">💳 Cash Disponibil</div>
+            <div class="kpi-value">62.140 RON</div>
+            <div class="kpi-change change-neutral">Estimare luna viitoare</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">🏛️ Taxe Estimate</div>
+            <div class="kpi-value" style="color:var(--yellow)">11.340 RON</div>
+            <div class="kpi-change change-neutral">Scadent: 25 Iunie 2026</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Venituri vs Cheltuieli</div>
+            <div class="chart-sub">Ultimele 6 luni</div>
+            <div class="chart-container">
+              <canvas id="revExpChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Status Facturi</div>
+            <div class="chart-sub">Distribuție curentă</div>
+            <div class="chart-container">
+              <canvas id="invoiceStatusChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Insights & Notifications -->
+        <div class="insights-grid">
+          <div class="insights-card">
+            <div class="section-title">💡 Insights Rapide</div>
+            <div class="insight-item">
+              <div class="insight-icon">📉</div>
+              <div class="insight-text"><strong>Cheltuielile operaționale</strong> au crescut cu 12% față de luna trecută. Verifică categoria Combustibil și Subcontractori.</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-icon">⚠️</div>
+              <div class="insight-text"><strong>3 facturi restante</strong> (38.500 RON) afectează cashflow-ul estimat pentru luna viitoare.</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-icon">✅</div>
+              <div class="insight-text"><strong>Veniturile sunt cu 8.4% peste</strong> media ultimelor 3 luni. Tendință pozitivă.</div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-icon">🏛️</div>
+              <div class="insight-text"><strong>TVA de plată estimat: 8.240 RON</strong> — scadent în 5 zile. Asigură disponibilul.</div>
+            </div>
+          </div>
+          <div class="insights-card">
+            <div class="section-title">🔔 Notificări</div>
+            <div class="notif-item">
+              <div class="notif-dot-color" style="background:var(--red)"></div>
+              <div>
+                <div class="notif-text"><strong>Factură restantă — CONSTRUCT SA</strong>Factura #INV-0087 (12.000 RON) este depășită cu 15 zile.</div>
+                <div class="notif-time">Acum 2 ore</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-dot-color" style="background:var(--orange)"></div>
+              <div>
+                <div class="notif-text"><strong>TVA scadent în 5 zile</strong>Declarație D300 — termen 25 mai 2026.</div>
+                <div class="notif-time">Ieri</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-dot-color" style="background:var(--yellow)"></div>
+              <div>
+                <div class="notif-text"><strong>Cashflow warning</strong>Dacă facturile restante nu sunt încasate, cashflow-ul devine negativ în ~12 zile.</div>
+                <div class="notif-time">2 zile în urmă</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-dot-color" style="background:var(--accent)"></div>
+              <div>
+                <div class="notif-text"><strong>Document lipsă</strong>Contractul cu INFRA GROUP SRL nu a fost încărcat în sistem.</div>
+                <div class="notif-time">3 zile în urmă</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cashflow Chart -->
+        <div class="chart-card" style="margin-bottom:24px">
+          <div class="chart-title">Trend Cashflow</div>
+          <div class="chart-sub">Ultimele 6 luni — sold estimat</div>
+          <div class="chart-container" style="height:160px">
+            <canvas id="cashflowChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= INVOICES PAGE ======= -->
+      <div id="page-invoices" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-size:22px;font-weight:700">Facturi</div>
+            <div style="font-size:13px;color:var(--text2)">Total 24 facturi • 38.500 RON neîncasat</div>
+          </div>
+          <button class="btn-accent" onclick="showModal('new-invoice-modal')">+ Factură nouă</button>
+        </div>
+
+        <!-- Summary cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
+          <div class="kpi-card" style="padding:16px">
+            <div class="kpi-label" style="font-size:10px">Toate</div>
+            <div class="kpi-value" style="font-size:22px">24</div>
+            <div style="font-size:12px;color:var(--text2)">365.200 RON total</div>
+          </div>
+          <div class="kpi-card" style="padding:16px">
+            <div class="kpi-label" style="font-size:10px;color:var(--green)">Plătite</div>
+            <div class="kpi-value" style="font-size:22px;color:var(--green)">18</div>
+            <div style="font-size:12px;color:var(--text2)">286.700 RON</div>
+          </div>
+          <div class="kpi-card" style="padding:16px">
+            <div class="kpi-label" style="font-size:10px;color:var(--orange)">În așteptare</div>
+            <div class="kpi-value" style="font-size:22px;color:var(--orange)">3</div>
+            <div style="font-size:12px;color:var(--text2)">26.500 RON</div>
+          </div>
+          <div class="kpi-card" style="padding:16px">
+            <div class="kpi-label" style="font-size:10px;color:var(--red)">Restante</div>
+            <div class="kpi-value" style="font-size:22px;color:var(--red)">3</div>
+            <div style="font-size:12px;color:var(--text2)">38.500 RON</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-filters">
+              <span class="filter-btn active" onclick="filterInvoices(this,'all')">Toate</span>
+              <span class="filter-btn" onclick="filterInvoices(this,'paid')">Plătite</span>
+              <span class="filter-btn" onclick="filterInvoices(this,'pending')">În așteptare</span>
+              <span class="filter-btn" onclick="filterInvoices(this,'overdue')">Restante</span>
+            </div>
+            <input class="search-box" placeholder="🔍 Caută factură sau client..." oninput="searchInvoices(this.value)">
+          </div>
+          <table id="invoices-table">
+            <thead><tr>
+              <th>Nr. Factură</th>
+              <th>Client</th>
+              <th>Valoare</th>
+              <th>Data emiterii</th>
+              <th>Scadență</th>
+              <th>Status</th>
+              <th>Acțiuni</th>
+            </tr></thead>
+            <tbody id="invoices-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= EXPENSES PAGE ======= -->
+      <div id="page-expenses" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-size:22px;font-weight:700">Cheltuieli</div>
+            <div style="font-size:13px;color:var(--text2)">Luna curentă: 98.740 RON cheltuiți</div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn-sm">Export Excel</button>
+            <button class="btn-accent" onclick="showModal('new-expense-modal')">+ Adaugă cheltuială</button>
+          </div>
+        </div>
+
+        <div class="upload-zone" onclick="simulateOCR()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text"><strong>Drag & drop</strong> sau click pentru a încărca bonuri/facturi</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:6px">Suportăm JPG, PNG, PDF • OCR automat cu AI</div>
+        </div>
+
+        <div id="ocr-preview" style="display:none;background:var(--bg2);border:1px solid var(--green);border-radius:var(--radius);padding:16px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <span style="font-size:20px">✅</span>
+            <div>
+              <div style="font-weight:700;color:var(--green)">Document procesat cu AI</div>
+              <div style="font-size:12px;color:var(--text2)">Extragere automată date • Verifică și confirmă</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px">
+              <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Furnizor</div>
+              <div style="font-size:13px;font-weight:600">MOL Romania SRL</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px">
+              <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Valoare</div>
+              <div style="font-size:13px;font-weight:600">1.240 RON (cu TVA)</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px">
+              <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Categorie AI</div>
+              <div style="font-size:13px;font-weight:600;color:var(--accent)">⛽ Combustibil</div>
+            </div>
+          </div>
+          <button class="btn-accent" style="margin-top:12px" onclick="document.getElementById('ocr-preview').style.display='none'">Confirmă & Salvează</button>
+        </div>
+
+        <!-- Expenses by category -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="table-card">
+            <div class="table-header">
+              <div style="font-size:14px;font-weight:700">Lista cheltuieli</div>
+              <input class="search-box" placeholder="🔍 Caută..." style="width:160px">
+            </div>
+            <table>
+              <thead><tr>
+                <th>Descriere</th>
+                <th>Furnizor</th>
+                <th>Categorie</th>
+                <th>Valoare</th>
+                <th>TVA</th>
+                <th>Data</th>
+              </tr></thead>
+              <tbody id="expenses-tbody"></tbody>
+            </table>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Cheltuieli pe categorii</div>
+            <div class="chart-sub">Luna curentă</div>
+            <div class="chart-container" style="height:220px">
+              <canvas id="expCatChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= CLIENTS PAGE ======= -->
+      <div id="page-clients" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-size:22px;font-weight:700">Clienți</div>
+            <div style="font-size:13px;color:var(--text2)">12 clienți activi • 365.200 RON venituri totale</div>
+          </div>
+          <button class="btn-accent">+ Client nou</button>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-filters">
+              <span class="filter-btn active">Toți</span>
+              <span class="filter-btn">Activi</span>
+              <span class="filter-btn">Risc înalt</span>
+            </div>
+            <input class="search-box" placeholder="🔍 Caută client...">
+          </div>
+          <table>
+            <thead><tr>
+              <th>Client</th>
+              <th>Total venituri</th>
+              <th>Facturi</th>
+              <th>Sold neîncasat</th>
+              <th>Plată medie</th>
+              <th>Risc</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody id="clients-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= CASHFLOW PAGE ======= -->
+      <div id="page-cashflow" class="page">
+        <div style="font-size:22px;font-weight:700;margin-bottom:6px">Cashflow</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Monitorizare flux financiar și previziuni</div>
+
+        <div class="cashflow-grid">
+          <div class="cashflow-card">
+            <div class="cf-label">💚 Încasări estimate</div>
+            <div class="cf-value" style="color:var(--green)">+147.320 RON</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">Luna curentă</div>
+          </div>
+          <div class="cashflow-card">
+            <div class="cf-label">🔴 Plăți estimate</div>
+            <div class="cf-value" style="color:var(--red)">-98.740 RON</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">Luna curentă</div>
+          </div>
+          <div class="cashflow-card">
+            <div class="cf-label">💰 Sold proiectat</div>
+            <div class="cf-value" style="color:var(--accent)">62.140 RON</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">Estimare luna viitoare</div>
+          </div>
+          <div class="cashflow-card">
+            <div class="cf-label">⚠️ Risc lichiditate</div>
+            <div class="cf-value" style="color:var(--orange)">Mediu</div>
+            <div class="risk-bar"><div class="risk-fill" style="width:55%;background:var(--orange)"></div></div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Flux Cashflow — 6 luni</div>
+            <div class="chart-sub">Încasări vs Plăți vs Sold</div>
+            <div class="chart-container" style="height:220px">
+              <canvas id="cashflowDetailChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Previziune 30 zile</div>
+            <div class="chart-sub">Sold estimat zilnic</div>
+            <div class="chart-container" style="height:220px">
+              <canvas id="forecastChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming payments -->
+        <div class="table-card">
+          <div class="table-header">
+            <div style="font-size:14px;font-weight:700">Scadențe urmtoare</div>
+          </div>
+          <table>
+            <thead><tr>
+              <th>Descriere</th>
+              <th>Tip</th>
+              <th>Valoare</th>
+              <th>Scadență</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody>
+              <tr><td><div class="td-main">TVA D300</div><div class="td-sub">Declarație fiscală</div></td><td><span class="badge badge-orange">Plată</span></td><td style="color:var(--red);font-weight:600">-8.240 RON</td><td>25 Mai 2026</td><td><span class="badge badge-orange">Urgent</span></td></tr>
+              <tr><td><div class="td-main">CONSTRUCT SA</div><div class="td-sub">Încasare factură #INV-0087</div></td><td><span class="badge badge-green">Încasare</span></td><td style="color:var(--green);font-weight:600">+12.000 RON</td><td>20 Mai 2026</td><td><span class="badge badge-red">Restantă</span></td></tr>
+              <tr><td><div class="td-main">Salariu personal</div><div class="td-sub">15 angajați</div></td><td><span class="badge badge-orange">Plată</span></td><td style="color:var(--red);font-weight:600">-42.000 RON</td><td>30 Mai 2026</td><td><span class="badge badge-blue">Planificat</span></td></tr>
+              <tr><td><div class="td-main">INFRA GROUP SRL</div><div class="td-sub">Încasare factură #INV-0091</div></td><td><span class="badge badge-green">Încasare</span></td><td style="color:var(--green);font-weight:600">+18.500 RON</td><td>05 Iun 2026</td><td><span class="badge badge-blue">Planificat</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= ANALYTICS PAGE ======= -->
+      <div id="page-analytics" class="page">
+        <div style="font-size:22px;font-weight:700;margin-bottom:6px">Analize & Rapoarte</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Performanță business — ultimele 12 luni</div>
+
+        <div class="analytics-grid">
+          <div class="chart-card">
+            <div class="chart-title">Evoluție venituri anuale</div>
+            <div class="chart-sub">2025 vs 2026</div>
+            <div class="chart-container" style="height:220px">
+              <canvas id="annualRevenueChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Marjă profit</div>
+            <div class="chart-sub">Procentaj lunar</div>
+            <div class="chart-container" style="height:220px">
+              <canvas id="marginChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
+          <div class="kpi-card">
+            <div class="kpi-label">📊 Marjă medie profit</div>
+            <div class="kpi-value" style="color:var(--green)">31.2%</div>
+            <div class="kpi-change change-up">↑ 2.4pp față de an trecut</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">🔄 Rotație clienți</div>
+            <div class="kpi-value">4.2x</div>
+            <div class="kpi-change change-neutral">Timp mediu încasare: 28 zile</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">🏆 Client top valoare</div>
+            <div class="kpi-value" style="font-size:18px">CONSTRUCT SA</div>
+            <div class="kpi-change change-up">82.400 RON — 22.5% din venituri</div>
+          </div>
+        </div>
+
+        <!-- Top clients chart -->
+        <div class="chart-card">
+          <div class="chart-title">Top clienți după venituri</div>
+          <div class="chart-sub">Ultimele 12 luni</div>
+          <div class="chart-container" style="height:200px">
+            <canvas id="topClientsChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= DOCUMENTS PAGE ======= -->
+      <div id="page-documents" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-size:22px;font-weight:700">Documente</div>
+            <div style="font-size:13px;color:var(--text2)">42 fișiere • 127 MB</div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn-sm">📁 Folder nou</button>
+            <button class="btn-accent">↑ Încarcă document</button>
+          </div>
+        </div>
+
+        <div class="docs-grid">
+          <div class="doc-card" onclick="alert('Deschide folder: Facturi emise')">
+            <div class="doc-icon">📂</div>
+            <div class="doc-name">Facturi emise</div>
+            <div class="doc-meta">24 fișiere • 2026</div>
+          </div>
+          <div class="doc-card" onclick="alert('Deschide folder: Facturi primite')">
+            <div class="doc-icon">📂</div>
+            <div class="doc-name">Facturi primite</div>
+            <div class="doc-meta">31 fișiere • 2026</div>
+          </div>
+          <div class="doc-card" onclick="alert('Deschide folder: Contracte')">
+            <div class="doc-icon">📂</div>
+            <div class="doc-name">Contracte</div>
+            <div class="doc-meta">8 fișiere • active</div>
+          </div>
+          <div class="doc-card" onclick="alert('Deschide folder: Declarații fiscale')">
+            <div class="doc-icon">📂</div>
+            <div class="doc-name">Declarații fiscale</div>
+            <div class="doc-meta">12 fișiere • 2025–2026</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <div style="font-size:14px;font-weight:700">Documente recente</div>
+            <input class="search-box" placeholder="🔍 Caută document...">
+          </div>
+          <table>
+            <thead><tr>
+              <th>Nume fișier</th>
+              <th>Tip</th>
+              <th>Client/Furnizor</th>
+              <th>Data</th>
+              <th>Mărime</th>
+              <th>Acțiuni</th>
+            </tr></thead>
+            <tbody>
+              <tr><td><div class="td-main">📄 INV-0094-CONSTRUCT-SA.pdf</div></td><td><span class="badge badge-blue">Factură</span></td><td>CONSTRUCT SA</td><td>18 Mai 2026</td><td>124 KB</td><td><button class="btn-sm">👁 Previzualizare</button></td></tr>
+              <tr><td><div class="td-main">📄 Contract-INFRA-GROUP-2026.pdf</div></td><td><span class="badge badge-green">Contract</span></td><td>INFRA GROUP SRL</td><td>12 Mai 2026</td><td>342 KB</td><td><button class="btn-sm">👁 Previzualizare</button></td></tr>
+              <tr><td><div class="td-main">🧾 bon-mol-120526.jpg</div></td><td><span class="badge badge-orange">Bon fiscal</span></td><td>MOL Romania</td><td>12 Mai 2026</td><td>87 KB</td><td><button class="btn-sm">👁 Previzualizare</button></td></tr>
+              <tr><td><div class="td-main">📄 D300-Mai-2026.pdf</div></td><td><span class="badge badge-gray">Declarație</span></td><td>ANAF</td><td>10 Mai 2026</td><td>28 KB</td><td><button class="btn-sm">👁 Previzualizare</button></td></tr>
+              <tr><td><div class="td-main">📄 INV-0091-INFRA.pdf</div></td><td><span class="badge badge-blue">Factură</span></td><td>INFRA GROUP SRL</td><td>5 Mai 2026</td><td>98 KB</td><td><button class="btn-sm">👁 Previzualizare</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ======= TASKS PAGE ======= -->
+      <div id="page-tasks" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-size:22px;font-weight:700">Sarcini & Remindere</div>
+            <div style="font-size:13px;color:var(--text2)">5 sarcini active • 2 urgente</div>
+          </div>
+          <button class="btn-accent" onclick="showModal('new-task-modal')">+ Sarcină nouă</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">🔥 Urgente</div>
+            <div class="tasks-list">
+              <div class="task-item">
+                <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                <div style="flex:1">
+                  <div class="task-text">Depune declarație TVA D300</div>
+                  <div class="task-due">⏰ Scadent: 25 Mai 2026</div>
+                </div>
+                <span class="task-priority priority-high">Urgent</span>
+              </div>
+              <div class="task-item">
+                <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                <div style="flex:1">
+                  <div class="task-text">Contactează CONSTRUCT SA pentru factura restantă #INV-0087</div>
+                  <div class="task-due">⏰ Restantă: 15 zile</div>
+                </div>
+                <span class="task-priority priority-high">Urgent</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">📋 În desfășurare</div>
+            <div class="tasks-list">
+              <div class="task-item">
+                <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                <div style="flex:1">
+                  <div class="task-text">Emite factura pentru lucrarea Șoseaua Nordului</div>
+                  <div class="task-due">📅 Termen: 22 Mai 2026</div>
+                </div>
+                <span class="task-priority priority-med">Normal</span>
+              </div>
+              <div class="task-item">
+                <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                <div style="flex:1">
+                  <div class="task-text">Încarcă contractul INFRA GROUP în sistem</div>
+                  <div class="task-due">📅 Termen: 24 Mai 2026</div>
+                </div>
+                <span class="task-priority priority-med">Normal</span>
+              </div>
+              <div class="task-item">
+                <div class="task-checkbox done" onclick="toggleTask(this)"></div>
+                <div style="flex:1">
+                  <div class="task-text done">Reînnoire asigurare auto flota 3 mașini</div>
+                  <div class="task-due">✅ Completat: 15 Mai 2026</div>
+                </div>
+                <span class="task-priority priority-low">Finalizat</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fiscal Calendar -->
+        <div class="insights-card" style="margin-top:20px">
+          <div class="section-title">🗓 Calendar Fiscal — Mai 2026</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px">25 Mai 2026</div>
+              <div style="font-size:13px;font-weight:600;color:var(--red)">Declarație TVA D300</div>
+              <div style="font-size:11px;color:var(--text2)">8.240 RON de plată</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px">25 Mai 2026</div>
+              <div style="font-size:13px;font-weight:600">Impozit pe profit trim.I</div>
+              <div style="font-size:11px;color:var(--text2)">3.100 RON estimat</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px">30 Mai 2026</div>
+              <div style="font-size:13px;font-weight:600">Salarii angajați</div>
+              <div style="font-size:11px;color:var(--text2)">42.000 RON</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border)">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px">25 Iun 2026</div>
+              <div style="font-size:13px;font-weight:600">Declarație TVA D300</div>
+              <div style="font-size:11px;color:var(--text2)">Estimare: ~7.800 RON</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= AI ASSISTANT PAGE ======= -->
+      <div id="page-ai" class="page">
+        <div style="font-size:22px;font-weight:700;margin-bottom:6px">Asistent AI Business</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Analiză inteligentă a situației firmei tale</div>
+
+        <div class="ai-card">
+          <div class="ai-header">
+            <div class="ai-avatar">🤖</div>
+            <div>
+              <div class="ai-name">Business AI Assistant</div>
+              <div class="ai-status"><div class="ai-dot"></div> Online — analizează datele firmei</div>
+            </div>
+          </div>
+          <div class="ai-messages">
+            <div class="ai-msg warning">
+              <div class="ai-msg-type">⚠️ Avertisment cashflow</div>
+              Cashflow-ul poate deveni negativ în aproximativ <strong>12 zile</strong> dacă facturile restante (38.500 RON) nu sunt încasate. Recomand contactarea urgentă a CONSTRUCT SA și EURO LOGISTIC SRL.
+            </div>
+            <div class="ai-msg insight">
+              <div class="ai-msg-type">📊 Analiză cheltuieli</div>
+              Costurile cu combustibilul au crescut cu <strong>18% față de luna trecută</strong>. Acest trend, combinat cu creșterea de 12% a cheltuielilor operaționale, sugerează o ineficiență în gestionarea flotei auto. Considerați monitorizarea consumului per vehicul.
+            </div>
+            <div class="ai-msg alert">
+              <div class="ai-msg-type">🚨 Risc client</div>
+              Clientul <strong>CONSTRUCT SA</strong> a întârziat plata pentru 3 facturi consecutive în ultimele 90 de zile. Soldul restant actual: 12.000 RON. Risc de neplată: moderat-ridicat. Recomandare: limitați creditarea comercială la 30 zile.
+            </div>
+            <div class="ai-msg positive">
+              <div class="ai-msg-type">✅ Performanță pozitivă</div>
+              Veniturile lunii mai sunt cu <strong>8.4% peste media ultimelor 3 luni</strong> (135.820 RON). Marja de profit de 33% este cea mai bună din ultimele 6 luni. Tendință pozitivă susținută.
+            </div>
+            <div class="ai-msg insight">
+              <div class="ai-msg-type">💡 Recomandare fiscală</div>
+              TVA de plată estimat pentru mai 2026: <strong>8.240 RON</strong>, scadent pe 25 mai — în 5 zile. Impozit pe profit trimestrul I: <strong>3.100 RON</strong>, același termen. Total obligații fiscale imediate: <strong>11.340 RON</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Chat simulation -->
+        <div class="insights-card">
+          <div class="section-title">💬 Întreabă-l pe Business AI</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <button class="btn-sm" onclick="aiQuestion('Ce clienți au risc ridicat?')">Ce clienți au risc ridicat?</button>
+            <button class="btn-sm" onclick="aiQuestion('Care este profitul estimat pe Q2?')">Profit estimat Q2?</button>
+            <button class="btn-sm" onclick="aiQuestion('Cum optimizez cheltuielile?')">Cum optimizez cheltuielile?</button>
+            <button class="btn-sm" onclick="aiQuestion('Care sunt obligațiile fiscale?')">Obligații fiscale?</button>
+          </div>
+          <div id="ai-chat-response" style="display:none;background:var(--bg3);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.6;border:1px solid var(--border)"></div>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <input id="ai-input" class="search-box" style="flex:1;width:auto" placeholder="Scrie o întrebare despre afacerea ta..." onkeydown="if(event.key==='Enter')aiSend()">
+            <button class="btn-accent" onclick="aiSend()">Trimite →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======= SETTINGS PAGE ======= -->
+      <div id="page-settings" class="page">
+        <div style="font-size:22px;font-weight:700;margin-bottom:20px">Setări</div>
+
+        <div class="settings-section">
+          <div class="settings-title">🏢 Informații firmă</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="form-group"><label>Denumire firmă</label><input type="text" value="Construcții ROM SRL" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none;width:100%"></div>
+            <div class="form-group"><label>CUI</label><input type="text" value="RO12345678" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none;width:100%"></div>
+            <div class="form-group"><label>Reg. Comerțului</label><input type="text" value="J40/1234/2018" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none;width:100%"></div>
+            <div class="form-group"><label>Email contabil</label><input type="text" value="contabil@firma-contabila.ro" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none;width:100%"></div>
+          </div>
+          <button class="btn-accent" style="margin-top:8px" onclick="alert('Setări salvate cu succes!')">Salvează modificările</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">🔔 Notificări</div>
+          <div class="settings-row">
+            <div><div class="settings-label">Facturi restante</div><div class="settings-desc">Alertă când o factură depășește scadența</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Scadențe fiscale</div><div class="settings-desc">Reminder cu 7 zile înainte de termen</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Avertisment cashflow</div><div class="settings-desc">Alertă când soldul scade sub prag minim</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Raport săptămânal AI</div><div class="settings-desc">Sumar automat în fiecare luni dimineața</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">🎨 Aspect</div>
+          <div class="settings-row">
+            <div><div class="settings-label">Temă Dark Mode</div><div class="settings-desc">Interfață întunecată (activă acum)</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Monedă implicită</div><div class="settings-desc">RON — Leu românesc</div></div>
+            <button class="btn-sm">RON ▾</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="new-invoice-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('new-invoice-modal')">✕</button>
+    <div class="modal-title">🧾 Factură nouă</div>
+    <div class="form-group"><label>Client</label><input type="text" placeholder="Selectează sau caută client..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Valoare (RON)</label><input type="number" placeholder="0.00" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+      <div class="form-group"><label>Scadență</label><input type="date" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+    </div>
+    <div class="form-group"><label>Descriere servicii/lucrări</label><input type="text" placeholder="Ex: Lucrări construcții Lot 3..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+    <button class="btn-accent" style="width:100%;margin-top:8px" onclick="closeModal('new-invoice-modal');alert('Factură creată cu succes! (Demo)')">Generează factură</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="new-expense-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('new-expense-modal')">✕</button>
+    <div class="modal-title">💳 Cheltuială nouă</div>
+    <div class="form-group"><label>Furnizor</label><input type="text" placeholder="Numele furnizorului..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Valoare (RON)</label><input type="number" placeholder="0.00" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+      <div class="form-group"><label>Categorie</label>
+        <select style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none">
+          <option>Combustibil</option><option>Materiale construcții</option><option>Subcontractori</option><option>Utilități</option><option>Salarii</option><option>Transport</option><option>Altele</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-accent" style="width:100%;margin-top:8px" onclick="closeModal('new-expense-modal');alert('Cheltuială adăugată! (Demo)')">Salvează cheltuiala</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="new-task-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('new-task-modal')">✕</button>
+    <div class="modal-title">✅ Sarcină nouă</div>
+    <div class="form-group"><label>Descriere sarcină</label><input type="text" placeholder="Ce trebuie făcut?" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Termen</label><input type="date" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none"></div>
+      <div class="form-group"><label>Prioritate</label>
+        <select style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:13px;outline:none">
+          <option>Urgentă</option><option>Normală</option><option>Scăzută</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-accent" style="width:100%;margin-top:8px" onclick="closeModal('new-task-modal');alert('Sarcină adăugată! (Demo)')">Adaugă sarcina</button>
+  </div>
+</div>
+
+<script>
+// ===== MOCK DATA =====
+const invoices = [
+  {id:'INV-0094',client:'CONSTRUCT SA',value:'24.000',date:'18 Mai 2026',due:'18 Iun 2026',status:'pending'},
+  {id:'INV-0093',client:'INFRA GROUP SRL',value:'18.500',date:'5 Mai 2026',due:'5 Iun 2026',status:'pending'},
+  {id:'INV-0092',client:'EURO LOGISTIC SRL',value:'8.200',date:'28 Apr 2026',due:'28 Mai 2026',status:'overdue'},
+  {id:'INV-0091',client:'METRO CONSTRUCT',value:'12.800',date:'20 Apr 2026',due:'20 Mai 2026',status:'overdue'},
+  {id:'INV-0090',client:'CONSTRUCT SA',value:'15.600',date:'10 Apr 2026',due:'10 Mai 2026',status:'paid'},
+  {id:'INV-0089',client:'TOTAL ENERGY SRL',value:'9.400',date:'5 Apr 2026',due:'5 Mai 2026',status:'paid'},
+  {id:'INV-0088',client:'INFRA GROUP SRL',value:'22.000',date:'28 Mar 2026',due:'28 Apr 2026',status:'paid'},
+  {id:'INV-0087',client:'CONSTRUCT SA',value:'12.000',date:'1 Mar 2026',due:'1 Apr 2026',status:'overdue'},
+  {id:'INV-0086',client:'ROMGAZ SA',value:'18.900',date:'15 Feb 2026',due:'15 Mar 2026',status:'paid'},
+  {id:'INV-0085',client:'METRO CONSTRUCT',value:'7.600',date:'8 Feb 2026',due:'8 Mar 2026',status:'paid'},
+];
+
+const expenses = [
+  {desc:'Motorină flota',supplier:'MOL Romania SRL',cat:'Combustibil',value:'3.840',tva:'726',date:'18 Mai 2026'},
+  {desc:'Materiale beton + armătură',supplier:'LEROY MERLIN',cat:'Materiale',value:'18.400',tva:'3.496',date:'15 Mai 2026'},
+  {desc:'Subcontractor zidărie Lot4',supplier:'ZIDARI EXPERT SRL',cat:'Subcontractori',value:'12.000',tva:'2.280',date:'12 Mai 2026'},
+  {desc:'Curent electric birou',supplier:'ENEL',cat:'Utilități',value:'840',tva:'159',date:'10 Mai 2026'},
+  {desc:'Închiriere utilaj excavator',supplier:'RENT&BUILD SRL',cat:'Utilaje',value:'4.200',tva:'798',date:'8 Mai 2026'},
+  {desc:'Salarii angajați Mai',supplier:'Intern',cat:'Salarii',value:'42.000',tva:'0',date:'5 Mai 2026'},
+  {desc:'Motorină deplasări',supplier:'OMV Romania',cat:'Combustibil',value:'1.240',tva:'235',date:'3 Mai 2026'},
+  {desc:'Software contabilitate',supplier:'SAGA Software',cat:'Altele',value:'420',tva:'80',date:'1 Mai 2026'},
+];
+
+const clients = [
+  {name:'CONSTRUCT SA',cui:'RO98765432',revenue:'82.400',invoices:'8',outstanding:'12.000',avgDays:'42',risk:'high',status:'active'},
+  {name:'INFRA GROUP SRL',cui:'RO87654321',revenue:'64.200',invoices:'6',outstanding:'18.500',avgDays:'28',risk:'med',status:'active'},
+  {name:'EURO LOGISTIC SRL',cui:'RO76543210',revenue:'38.400',invoices:'4',outstanding:'8.200',avgDays:'35',risk:'med',status:'active'},
+  {name:'METRO CONSTRUCT',cui:'RO65432109',revenue:'29.800',invoices:'5',outstanding:'12.800',avgDays:'22',risk:'low',status:'active'},
+  {name:'TOTAL ENERGY SRL',cui:'RO54321098',revenue:'24.600',invoices:'3',outstanding:'0',avgDays:'18',risk:'low',status:'active'},
+  {name:'ROMGAZ SA',cui:'RO43210987',revenue:'52.100',invoices:'4',outstanding:'0',avgDays:'15',risk:'low',status:'active'},
+  {name:'DRUMURI NATIONALE RA',cui:'RO32109876',revenue:'42.800',invoices:'3',outstanding:'0',avgDays:'25',risk:'low',status:'active'},
+];
+
+// ===== FUNCTIONS =====
+function loginDemo() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  initCharts();
+  populateTables();
+}
+
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = {
+    dashboard: ['Dashboard', 'Situația firmei — Miercuri, 20 Mai 2026'],
+    invoices: ['Facturi', 'Gestiune facturi emise și încasări'],
+    expenses: ['Cheltuieli', 'Monitorizare și categorizzare cheltuieli'],
+    clients: ['Clienți', 'Portofoliu clienți și istoric plăți'],
+    cashflow: ['Cashflow', 'Flux financiar și previziuni'],
+    analytics: ['Analize', 'Rapoarte de performanță business'],
+    documents: ['Documente', 'Centrul de documente firmă'],
+    tasks: ['Sarcini & Remindere', 'Calendar operațional și fiscal'],
+    ai: ['Asistent AI Business', 'Analiză inteligentă cu AI'],
+    settings: ['Setări', 'Configurare cont și preferințe'],
+  };
+  if (titles[page]) {
+    document.getElementById('page-title').textContent = titles[page][0];
+    document.getElementById('page-sub').textContent = titles[page][1];
+  }
+  if (page === 'cashflow' || page === 'analytics') setTimeout(initChartsExtra, 100);
+}
+
+function showModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const text = el.nextElementSibling.querySelector('.task-text');
+  if (text) text.classList.toggle('done');
+}
+
+function filterInvoices(btn, status) {
+  document.querySelectorAll('.table-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  populateInvoices(status);
+}
+
+function searchInvoices(q) {
+  const rows = document.querySelectorAll('#invoices-tbody tr');
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function simulateOCR() {
+  const preview = document.getElementById('ocr-preview');
+  preview.style.display = 'none';
+  setTimeout(() => { preview.style.display = 'block'; }, 1200);
+}
+
+const aiResponses = {
+  'Ce clienți au risc ridicat?': 'CONSTRUCT SA prezintă risc ridicat: 3 facturi consecutive întârziate, sold restant 12.000 RON, timp mediu de plată 42 de zile (față de media de 25 zile a portofoliului). EURO LOGISTIC SRL are risc mediu cu o factură depășită de 8.200 RON.',
+  'Care este profitul estimat pe Q2?': 'Profit estimat Q2 2026: ~142.000 RON, bazat pe trending-ul actual. Venituri proiectate: ~445.000 RON. Cheltuieli estimate: ~303.000 RON. Marjă: 31.9%. Atenție: dacă facturile restante (38.500 RON) nu sunt încasate, profitul real va fi cu ~12% mai mic.',
+  'Cum optimizez cheltuielile?': '3 recomandări principale: (1) Combustibil +18% — implementați monitorizare consum per vehicul, economie estimată 15-20%. (2) Subcontractori reprezintă 28% din costuri — negociați contracte cadru cu prețuri fixe. (3) Materiale — achizițiile fragmentate costă ~8% mai mult față de comenzi consolidate.',
+  'Care sunt obligațiile fiscale?': 'Obligații fiscale imediate: TVA D300 = 8.240 RON (scadent 25 Mai), Impozit profit trim.I = 3.100 RON (25 Mai). Total: 11.340 RON. Luna viitoare: TVA estimat ~7.800 RON (25 Iun), salarii CAS/CASS = ~14.700 RON (25 Iun).',
+};
+
+function aiQuestion(q) {
+  document.getElementById('ai-input').value = q;
+  aiSend();
+}
+
+function aiSend() {
+  const input = document.getElementById('ai-input');
+  const q = input.value.trim();
+  if (!q) return;
+  const resp = aiResponses[q] || 'Analizez datele firmei tale... Această funcționalitate va fi disponibilă în versiunea completă a platformei. Momentan, am identificat 3 insights importante în secțiunea Asistent AI.';
+  const box = document.getElementById('ai-chat-response');
+  box.style.display = 'block';
+  box.innerHTML = '<strong style="color:var(--accent)">🤖 Business AI:</strong><br><br>' + resp;
+  input.value = '';
+}
+
+function populateInvoices(filter = 'all') {
+  const tbody = document.getElementById('invoices-tbody');
+  const statusMap = {paid:'Plătit',pending:'În așteptare',overdue:'Restant'};
+  const badgeMap = {paid:'badge-green',pending:'badge-blue',overdue:'badge-red'};
+  tbody.innerHTML = invoices
+    .filter(inv => filter === 'all' || inv.status === filter)
+    .map(inv => `<tr>
+      <td><div class="td-main">${inv.id}</div></td>
+      <td><div class="td-main">${inv.client}</div></td>
+      <td><strong>${inv.value} RON</strong></td>
+      <td>${inv.date}</td>
+      <td style="color:${inv.status==='overdue'?'var(--red)':'var(--text)'}">${inv.due}</td>
+      <td><span class="badge ${badgeMap[inv.status]}">${statusMap[inv.status]}</span></td>
+      <td><button class="btn-sm" onclick="alert('Detalii factură ${inv.id} (Demo)')">Detalii</button></td>
+    </tr>`).join('');
+}
+
+function populateExpenses() {
+  const tbody = document.getElementById('expenses-tbody');
+  tbody.innerHTML = expenses.map(e => `<tr>
+    <td><div class="td-main">${e.desc}</div></td>
+    <td>${e.supplier}</td>
+    <td><span class="badge badge-gray">${e.cat}</span></td>
+    <td><strong>${e.value} RON</strong></td>
+    <td style="color:var(--text2)">${e.tva} RON</td>
+    <td>${e.date}</td>
+  </tr>`).join('');
+}
+
+function populateClients() {
+  const tbody = document.getElementById('clients-tbody');
+  const riskMap = {high:'var(--red)',med:'var(--orange)',low:'var(--green)'};
+  const riskLabel = {high:'Ridicat',med:'Mediu',low:'Scăzut'};
+  tbody.innerHTML = clients.map(c => `<tr>
+    <td><div class="td-main">${c.name}</div><div class="td-sub">${c.cui}</div></td>
+    <td><strong>${c.revenue} RON</strong></td>
+    <td>${c.invoices}</td>
+    <td style="color:${c.outstanding!=='0'?'var(--orange)':'var(--green)'}">${c.outstanding!=='0'?c.outstanding+' RON':'—'}</td>
+    <td>${c.avgDays} zile</td>
+    <td><div class="client-risk"><div class="risk-dot" style="background:${riskMap[c.risk]}"></div><span style="color:${riskMap[c.risk]};font-size:12px;font-weight:600">${riskLabel[c.risk]}</span></div></td>
+    <td><span class="badge badge-green">Activ</span></td>
+  </tr>`).join('');
+}
+
+function populateTables() {
+  populateInvoices();
+  populateExpenses();
+  populateClients();
+}
+
+// ===== CHARTS =====
+Chart.defaults.color = '#8892a4';
+Chart.defaults.borderColor = '#2a3348';
+Chart.defaults.font.family = 'Inter, -apple-system, sans-serif';
+
+const months = ['Dec','Ian','Feb','Mar','Apr','Mai'];
+
+function initCharts() {
+  // Revenue vs Expenses
+  new Chart(document.getElementById('revExpChart'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Venituri', data: [98000,112000,125000,118000,136000,147320], backgroundColor: 'rgba(52,211,153,0.7)', borderRadius: 6 },
+        { label: 'Cheltuieli', data: [72000,85000,90000,88000,98000,98740], backgroundColor: 'rgba(79,142,247,0.5)', borderRadius: 6 },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { grid: { color: '#2a3348' } }, x: { grid: { display: false } } } }
+  });
+
+  // Invoice Status Donut
+  new Chart(document.getElementById('invoiceStatusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Plătite', 'În așteptare', 'Restante'],
+      datasets: [{ data: [18, 3, 3], backgroundColor: ['rgba(52,211,153,0.8)','rgba(79,142,247,0.8)','rgba(248,113,113,0.8)'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+  });
+
+  // Cashflow trend
+  new Chart(document.getElementById('cashflowChart'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{ label: 'Sold cashflow', data: [38000, 52000, 48000, 61000, 55000, 62140], borderColor: 'var(--accent2)', backgroundColor: 'rgba(62,207,207,0.1)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: 'var(--accent2)' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2a3348' } }, x: { grid: { display: false } } } }
+  });
+
+  // Expense categories
+  new Chart(document.getElementById('expCatChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Salarii','Materiale','Subcontractori','Combustibil','Utilaje','Altele'],
+      datasets: [{ data: [42000,18400,12000,5080,4200,1060], backgroundColor: ['#4f8ef7','#34d399','#fbbf24','#fb923c','#a78bfa','#8892a4'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } } }, cutout: '55%' }
+  });
+}
+
+let chartsExtraInit = false;
+function initChartsExtra() {
+  if (chartsExtraInit) return;
+  chartsExtraInit = true;
+
+  // Cashflow detail
+  if (document.getElementById('cashflowDetailChart')) {
+    new Chart(document.getElementById('cashflowDetailChart'), {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'Încasări', data: [98000,112000,125000,118000,136000,147320], backgroundColor: 'rgba(52,211,153,0.7)', borderRadius: 4 },
+          { label: 'Plăți', data: [72000,85000,90000,88000,98000,98740], backgroundColor: 'rgba(248,113,113,0.5)', borderRadius: 4 },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { grid: { color: '#2a3348' } }, x: { grid: { display: false } } } }
+    });
+  }
+
+  // Forecast
+  if (document.getElementById('forecastChart')) {
+    const days = Array.from({length: 30}, (_, i) => i + 1);
+    const vals = days.map(d => 62140 + (Math.sin(d * 0.3) * 8000) + d * 400 - (d > 10 && d < 15 ? 8240 : 0) - (d === 30 ? 42000 : 0));
+    new Chart(document.getElementById('forecastChart'), {
+      type: 'line',
+      data: {
+        labels: days.map(d => d + ' Mai'),
+        datasets: [{ label: 'Sold estimat', data: vals, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.08)', fill: true, tension: 0.4, pointRadius: 0 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2a3348' } }, x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } } } }
+    });
+  }
+
+  // Annual revenue
+  if (document.getElementById('annualRevenueChart')) {
+    const allMonths = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+    new Chart(document.getElementById('annualRevenueChart'), {
+      type: 'line',
+      data: {
+        labels: allMonths,
+        datasets: [
+          { label: '2025', data: [68000,72000,88000,95000,102000,118000,112000,125000,130000,128000,138000,142000], borderColor: '#4f8ef7', backgroundColor: 'transparent', tension: 0.4, pointRadius: 3 },
+          { label: '2026', data: [112000,125000,118000,136000,147320,null,null,null,null,null,null,null], borderColor: '#34d399', backgroundColor: 'transparent', tension: 0.4, pointRadius: 3 },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { grid: { color: '#2a3348' } }, x: { grid: { display: false } } } }
+    });
+  }
+
+  // Margin
+  if (document.getElementById('marginChart')) {
+    new Chart(document.getElementById('marginChart'), {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{ label: 'Marjă profit %', data: [26.5, 24.1, 28.0, 25.4, 27.9, 33.0], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#a78bfa' }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2a3348' }, ticks: { callback: v => v + '%' } }, x: { grid: { display: false } } } }
+    });
+  }
+
+  // Top clients bar
+  if (document.getElementById('topClientsChart')) {
+    new Chart(document.getElementById('topClientsChart'), {
+      type: 'bar',
+      data: {
+        labels: ['CONSTRUCT SA', 'ROMGAZ SA', 'INFRA GROUP', 'DRUMURI NAT.', 'EURO LOGISTIC', 'METRO CONST.', 'TOTAL ENERGY'],
+        datasets: [{ data: [82400, 52100, 64200, 42800, 38400, 29800, 24600], backgroundColor: ['#4f8ef7','#34d399','#fbbf24','#a78bfa','#fb923c','#3ecfcf','#8892a4'], borderRadius: 6 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#2a3348' }, ticks: { callback: v => (v/1000)+'k RON' } }, y: { grid: { display: false } } } }
+    });
+  }
+}
+
+// Click login on Enter
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('login-page').style.display !== 'none') loginDemo(); });
+
+// Click outside modal to close
+</script>
+</body>
+</html>
