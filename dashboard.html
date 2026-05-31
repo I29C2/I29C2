@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manufacturing Cost Intelligence Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #0F172A;
+    --slate:  #334155;
+    --blue:   #2563EB;
+    --green:  #16A34A;
+    --amber:  #D97706;
+    --red:    #DC2626;
+    --bg:     #F8FAFC;
+    --card:   #FFFFFF;
+    --border: #E2E8F0;
+    --text:   #1E293B;
+    --muted:  #64748B;
+    --light:  #94A3B8;
+    --sidebar-w: 220px;
+    --topnav-h: 60px;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--topnav-h);
+    background: var(--navy);
+    display: flex; align-items: center; gap: 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  .topnav-brand {
+    width: var(--sidebar-w);
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 20px;
+    border-right: 1px solid rgba(255,255,255,.08);
+    flex-shrink: 0;
+  }
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: var(--blue);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #fff;
+    letter-spacing: -1px;
+  }
+  .brand-text { color: #fff; font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .brand-text span { display: block; color: #94A3B8; font-size: 11px; font-weight: 400; }
+
+  .topnav-links {
+    display: flex; align-items: center; gap: 2px;
+    padding: 0 16px; flex: 1; overflow-x: auto;
+  }
+  .topnav-links a {
+    color: #94A3B8; text-decoration: none;
+    padding: 6px 14px; border-radius: 4px;
+    font-size: 13px; white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  .topnav-links a:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .topnav-links a.active { background: rgba(37,99,235,.25); color: #93C5FD; }
+
+  .topnav-right {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 20px; margin-left: auto; flex-shrink: 0;
+  }
+  .badge-live {
+    background: rgba(22,163,74,.2); color: #4ADE80;
+    font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 10px; border: 1px solid rgba(22,163,74,.3);
+  }
+  .topnav-date { color: #64748B; font-size: 12px; }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--slate); color: #CBD5E1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; top: var(--topnav-h); left: 0; bottom: 0;
+    width: var(--sidebar-w); z-index: 90;
+    background: var(--navy);
+    border-right: 1px solid rgba(255,255,255,.06);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-section { padding: 20px 12px 8px; }
+  .sidebar-label {
+    color: #475569; font-size: 10px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 0 8px; margin-bottom: 6px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 6px;
+    color: #94A3B8; font-size: 13px; cursor: pointer;
+    transition: background .15s, color .15s;
+    text-decoration: none;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,.06); color: #E2E8F0; }
+  .sidebar-item.active { background: rgba(37,99,235,.2); color: #93C5FD; }
+  .sidebar-item svg { flex-shrink: 0; }
+  .sidebar-bottom {
+    margin-top: auto; padding: 12px;
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+  .sidebar-item .badge {
+    margin-left: auto; background: var(--red); color: #fff;
+    font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    margin-top: var(--topnav-h);
+    margin-left: var(--sidebar-w);
+    padding: 24px 28px 48px;
+    min-height: calc(100vh - var(--topnav-h));
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .page-title h1 { font-size: 20px; font-weight: 700; color: var(--text); }
+  .page-title p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .header-controls { display: flex; align-items: center; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 6px; font-size: 13px;
+    font-weight: 500; cursor: pointer; border: none; transition: .15s;
+  }
+  .btn-outline {
+    background: #fff; color: var(--slate);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { background: var(--bg); }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: #1D4ED8; }
+  .period-selector {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; font-size: 13px;
+    color: var(--text); cursor: pointer;
+  }
+
+  /* ── SECTION HEADINGS ── */
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; margin-top: 28px;
+  }
+  .section-head h2 { font-size: 15px; font-weight: 600; color: var(--text); }
+  .section-head .sub { font-size: 12px; color: var(--muted); }
+  .section-head a { font-size: 12px; color: var(--blue); text-decoration: none; }
+
+  /* ── GRID UTILS ── */
+  .grid-6 { display: grid; grid-template-columns: repeat(6,1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+  /* ── KPI CARD ── */
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: var(--text); margin: 6px 0 6px; letter-spacing: -.5px; }
+  .kpi-trend {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 600; padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .trend-up   { background: #DCFCE7; color: #16A34A; }
+  .trend-down { background: #FEF2F2; color: #DC2626; }
+  .trend-good-down { background: #DCFCE7; color: #16A34A; }
+  .trend-bad-up    { background: #FEF2F2; color: #DC2626; }
+  .kpi-footer { font-size: 11px; color: var(--light); margin-top: 8px; }
+  .kpi-card .kpi-icon {
+    float: right; width: 38px; height: 38px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .icon-blue { background: #EFF6FF; }
+  .icon-green { background: #F0FDF4; }
+  .icon-amber { background: #FFFBEB; }
+  .icon-red   { background: #FEF2F2; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .card-title {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title .meta { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+  /* ── CHARTS LAYOUT ── */
+  .chart-row { display: grid; gap: 16px; }
+  .chart-row-2 { grid-template-columns: 380px 1fr; }
+  .chart-row-full { grid-template-columns: 1fr; }
+
+  .chart-wrap { position: relative; }
+
+  /* ── PROCESS FLOW ── */
+  .flow-container {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; padding-bottom: 4px;
+  }
+  .flow-stage {
+    flex: 1; min-width: 140px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 12px;
+    position: relative; margin-right: 4px;
+    transition: box-shadow .2s;
+  }
+  .flow-stage:hover { box-shadow: 0 4px 12px rgba(37,99,235,.12); border-color: #BFDBFE; }
+  .flow-stage:last-child { margin-right: 0; }
+  .flow-stage::after {
+    content: '→';
+    position: absolute; right: -18px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--light); font-size: 16px; z-index: 1;
+  }
+  .flow-stage:last-child::after { display: none; }
+  .flow-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--blue); color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+  }
+  .flow-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .flow-stat { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .flow-stat strong { color: var(--text); }
+  .flow-cost { font-size: 18px; font-weight: 700; color: var(--blue); margin: 6px 0; }
+  .flow-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 10px; margin-top: 6px;
+  }
+  .tag-red { background: #FEF2F2; color: var(--red); border: 1px solid #FCA5A5; }
+  .tag-green { background: #F0FDF4; color: var(--green); border: 1px solid #86EFAC; }
+  .tag-amber { background: #FFFBEB; color: var(--amber); border: 1px solid #FCD34D; }
+  .flow-stage.highlight { border-color: #FCA5A5; background: #FFF8F8; }
+  .flow-stage.highlight .flow-num { background: var(--red); }
+  .flow-stage.highlight .flow-cost { color: var(--red); }
+
+  /* ── SHIFT BARS (custom) ── */
+  .shift-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .shift-row:last-child { border-bottom: none; }
+  .shift-label { width: 68px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .shift-bar-wrap { flex: 1; }
+  .shift-bar-bg {
+    height: 20px; background: #F1F5F9; border-radius: 4px;
+    overflow: hidden; position: relative;
+  }
+  .shift-bar-fill {
+    height: 100%; border-radius: 4px;
+    display: flex; align-items: center; padding-left: 8px;
+    font-size: 11px; font-weight: 600; color: #fff;
+    transition: width 1s ease;
+  }
+  .fill-a { background: var(--green); }
+  .fill-b { background: var(--amber); }
+  .fill-c { background: var(--red); }
+  .shift-stats {
+    display: flex; gap: 16px; margin-top: 6px;
+  }
+  .shift-stat-item { font-size: 11px; color: var(--muted); }
+  .shift-stat-item strong { color: var(--text); font-weight: 600; }
+  .shift-meta { text-align: right; min-width: 120px; }
+  .shift-cpu { font-size: 16px; font-weight: 700; color: var(--text); }
+  .shift-cpu-label { font-size: 11px; color: var(--muted); }
+  .shift-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    margin-top: 4px; display: inline-block;
+  }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    text-align: left; padding: 10px 14px;
+    background: #F8FAFC; color: var(--muted);
+    font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 11px 14px; border-bottom: 1px solid #F1F5F9;
+    color: var(--text);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #F8FAFC; }
+  .avail-bar {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .avail-bar-track {
+    flex: 1; height: 6px; background: #E2E8F0; border-radius: 3px; overflow: hidden;
+  }
+  .avail-bar-fill { height: 100%; border-radius: 3px; }
+  .avail-text { font-size: 12px; font-weight: 600; width: 34px; text-align: right; }
+  .machine-name { font-weight: 600; color: var(--text); }
+  .cost-cell { font-weight: 600; }
+
+  /* ── MAINTENANCE CARDS ── */
+  .maint-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .maint-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .maint-card.critical { border-left: 3px solid var(--red); }
+  .maint-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .maint-value { font-size: 24px; font-weight: 700; color: var(--text); }
+  .maint-value.red { color: var(--red); }
+  .maint-value.amber { color: var(--amber); }
+  .maint-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ── ROOT CAUSE LIST ── */
+  .rc-list { display: flex; flex-direction: column; gap: 10px; }
+  .rc-item { }
+  .rc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .rc-name { font-size: 13px; color: var(--text); }
+  .rc-pct { font-size: 13px; font-weight: 700; color: var(--text); }
+  .rc-bar-bg { height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
+  .rc-bar-fill { height: 100%; border-radius: 4px; }
+
+  /* ── INDIRECT COSTS ── */
+  .indirect-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+  .indirect-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #F8FAFC; border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+  }
+  .indirect-name { font-size: 13px; color: var(--text); }
+  .indirect-amt { font-size: 14px; font-weight: 700; color: var(--slate); }
+  .indirect-total {
+    background: var(--slate); color: #fff;
+    border-radius: 8px; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .indirect-total .label { font-size: 13px; font-weight: 600; }
+  .indirect-total .amount { font-size: 18px; font-weight: 700; }
+  .method-note {
+    font-size: 11px; color: var(--muted); margin-top: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── PRODUCT COSTING ── */
+  .product-cost-wrap { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+  .cost-line {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid #F1F5F9;
+  }
+  .cost-line:last-child { border-bottom: none; }
+  .cost-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .cost-name { flex: 1; font-size: 13px; color: var(--text); }
+  .cost-bar-wrap { width: 120px; }
+  .cost-bar-bg { height: 6px; background: #F1F5F9; border-radius: 3px; overflow: hidden; }
+  .cost-bar-fill { height: 100%; border-radius: 3px; }
+  .cost-amount { font-size: 13px; font-weight: 700; color: var(--text); width: 44px; text-align: right; }
+  .product-summary {
+    background: var(--navy); color: #fff; border-radius: 10px; padding: 20px;
+  }
+  .product-summary h3 { font-size: 13px; font-weight: 700; color: #94A3B8; margin-bottom: 16px; text-transform: uppercase; letter-spacing: .06em; }
+  .ps-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.08);
+    font-size: 13px;
+  }
+  .ps-row:last-child { border-bottom: none; }
+  .ps-label { color: #94A3B8; }
+  .ps-val { font-weight: 700; color: #fff; }
+  .ps-val.green { color: #4ADE80; }
+  .ps-val.blue { color: #93C5FD; }
+  .ps-total { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.15); }
+  .ps-total .ps-label { font-weight: 600; color: #E2E8F0; }
+  .ps-total .ps-val { font-size: 16px; color: #fff; }
+  .margin-badge {
+    background: rgba(22,163,74,.2); color: #4ADE80;
+    border: 1px solid rgba(22,163,74,.3); border-radius: 6px;
+    padding: 8px 14px; text-align: center; margin-top: 12px;
+  }
+  .margin-badge .pct { font-size: 24px; font-weight: 700; }
+  .margin-badge .lbl { font-size: 11px; color: #86EFAC; margin-top: 2px; }
+
+  /* ── AI INSIGHTS ── */
+  .ai-panel {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    border: 1px solid rgba(37,99,235,.3);
+    border-radius: 10px; padding: 20px;
+  }
+  .ai-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .ai-icon {
+    width: 32px; height: 32px; background: rgba(37,99,235,.3);
+    border: 1px solid rgba(37,99,235,.4); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .ai-title { color: #E2E8F0; font-size: 14px; font-weight: 700; }
+  .ai-subtitle { color: #64748B; font-size: 11px; }
+  .ai-insights { display: flex; flex-direction: column; gap: 10px; }
+  .ai-insight {
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 8px; padding: 12px 14px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .ai-insight-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+  }
+  .dot-blue { background: var(--blue); }
+  .dot-amber { background: var(--amber); }
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--red); }
+  .ai-insight-text { font-size: 13px; color: #CBD5E1; line-height: 1.6; }
+  .ai-insight-text strong { color: #E2E8F0; }
+
+  /* ── STATUS FOOTER ── */
+  .status-bar {
+    display: flex; align-items: center; gap: 20px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 20px; margin-top: 28px;
+    font-size: 12px;
+  }
+  .status-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1200px) {
+    .grid-6 { grid-template-columns: repeat(3,1fr); }
+    .chart-row-2 { grid-template-columns: 1fr; }
+    .product-cost-wrap { grid-template-columns: 1fr; }
+    .maint-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 900px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { display: none; }
+    .grid-6 { grid-template-columns: repeat(2,1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-4 { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-brand">
+    <div class="brand-icon">MC</div>
+    <div class="brand-text">
+      Manufacturing Cost Intelligence
+      <span>MCID Platform v2.4</span>
+    </div>
+  </div>
+  <div class="topnav-links">
+    <a href="#" class="active">Overview</a>
+    <a href="#">Production</a>
+    <a href="#">Cost Analysis</a>
+    <a href="#">Maintenance</a>
+    <a href="#">Quality</a>
+    <a href="#">Shift Analysis</a>
+    <a href="#">Product Costing</a>
+    <a href="#">Financial Impact</a>
+  </div>
+  <div class="topnav-right">
+    <span class="badge-live">● LIVE</span>
+    <span class="topnav-date">May 2026 &nbsp;|&nbsp; Plant 01 – Main</span>
+    <div class="user-avatar">PM</div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Navigation</div>
+    <a href="#" class="sidebar-item active">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Products
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Production Lines
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Machines
+      <span class="badge">2</span>
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Shifts
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Reports</div>
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Reports
+    </a>
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      Cost Trends
+    </a>
+  </div>
+  <div class="sidebar-bottom">
+    <a href="#" class="sidebar-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Settings
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════ MAIN -->
+<main class="main">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-title">
+      <h1>Cost Intelligence Overview</h1>
+      <p>Plant 01 – Main Facility &nbsp;/&nbsp; May 2026 &nbsp;/&nbsp; All Production Lines</p>
+    </div>
+    <div class="header-controls">
+      <select class="period-selector">
+        <option>May 2026</option>
+        <option>April 2026</option>
+        <option>Q1 2026</option>
+        <option>YTD 2026</option>
+      </select>
+      <button class="btn btn-outline">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="btn btn-primary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Report
+      </button>
+    </div>
+  </div>
+
+  <!-- ── KPI CARDS ── -->
+  <div class="grid-6">
+    <div class="kpi-card">
+      <div class="kpi-icon icon-blue" style="float:right">💰</div>
+      <div class="kpi-label">Total Monthly Cost</div>
+      <div class="kpi-value">€4.82M</div>
+      <span class="kpi-trend trend-bad-up">▲ +3.4%</span>
+      <div class="kpi-footer">vs. April 2026</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-blue" style="float:right">📦</div>
+      <div class="kpi-label">Cost Per Unit</div>
+      <div class="kpi-value">€18.42</div>
+      <span class="kpi-trend trend-good-down">▼ -1.2%</span>
+      <div class="kpi-footer">Target: €17.80</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-green" style="float:right">🏭</div>
+      <div class="kpi-label">Monthly Output</div>
+      <div class="kpi-value">262,000</div>
+      <span class="kpi-trend trend-up">▲ +5.1%</span>
+      <div class="kpi-footer">units produced</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-blue" style="float:right">⚙️</div>
+      <div class="kpi-label">OEE</div>
+      <div class="kpi-value">87.4%</div>
+      <span class="kpi-trend trend-up">▲ +2.3%</span>
+      <div class="kpi-footer">World-class: ≥85%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-amber" style="float:right">🗑️</div>
+      <div class="kpi-label">Scrap Rate</div>
+      <div class="kpi-value">2.8%</div>
+      <span class="kpi-trend trend-good-down">▼ -0.5%</span>
+      <div class="kpi-footer">Target: ≤2.0%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon icon-green" style="float:right">📈</div>
+      <div class="kpi-label">Est. Monthly Profit</div>
+      <div class="kpi-value">€1.12M</div>
+      <span class="kpi-trend trend-up">▲ +4.7%</span>
+      <div class="kpi-footer">Margin: 18.8%</div>
+    </div>
+  </div>
+
+  <!-- ── COST BREAKDOWN + TREND ── -->
+  <div class="section-head">
+    <div><h2>Production Cost Breakdown</h2><span class="sub">Cost composition and monthly trend – May 2026</span></div>
+    <a href="#">View Detail →</a>
+  </div>
+
+  <div class="chart-row chart-row-2">
+    <div class="card">
+      <div class="card-title">Cost Composition <span class="meta">Doughnut view</span></div>
+      <div style="height:240px; display:flex; align-items:center; justify-content:center;">
+        <canvas id="doughnutChart" style="max-height:230px;"></canvas>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:14px;">
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#2563EB;flex-shrink:0"></span>Materials 42%</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#7C3AED;flex-shrink:0"></span>Labor 21%</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#0891B2;flex-shrink:0"></span>Energy 12%</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#D97706;flex-shrink:0"></span>Maintenance 9%</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#64748B;flex-shrink:0"></span>Indirect 10%</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#16A34A;flex-shrink:0"></span>Quality 3%</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:#DC2626;flex-shrink:0"></span>Scrap 3%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Monthly Cost Trend – 2026 <span class="meta">€ thousands</span></div>
+      <div style="height:280px;">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRODUCTION FLOW ── -->
+  <div class="section-head">
+    <div><h2>Production Flow Cost Analysis</h2><span class="sub">Cost accumulation per manufacturing stage</span></div>
+    <a href="#">Configure Stages →</a>
+  </div>
+  <div class="card">
+    <div class="flow-container">
+      <div class="flow-stage">
+        <div class="flow-num">1</div>
+        <div class="flow-name">Pressing</div>
+        <div class="flow-cost">€4.12</div>
+        <div class="flow-stat"><strong>99,400</strong> units output</div>
+        <div class="flow-stat">Scrap: <strong>0.6%</strong></div>
+        <div class="flow-stat">Cycle time: <strong>18s</strong></div>
+        <span class="flow-tag tag-green">Normal</span>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">2</div>
+        <div class="flow-name">Auto Processing</div>
+        <div class="flow-cost">€1.22</div>
+        <div class="flow-stat"><strong>98,900</strong> units output</div>
+        <div class="flow-stat">Scrap: <strong>0.3%</strong></div>
+        <div class="flow-stat">Cycle time: <strong>12s</strong></div>
+        <span class="flow-tag tag-green">Optimal</span>
+      </div>
+      <div class="flow-stage highlight">
+        <div class="flow-num">3</div>
+        <div class="flow-name">Machining</div>
+        <div class="flow-cost">€5.10</div>
+        <div class="flow-stat"><strong>97,800</strong> units output</div>
+        <div class="flow-stat">Scrap: <strong>1.1%</strong></div>
+        <div class="flow-stat">Cycle time: <strong>34s</strong></div>
+        <span class="flow-tag tag-red">Highest Cost</span>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">4</div>
+        <div class="flow-name">Preparation</div>
+        <div class="flow-cost">€1.02</div>
+        <div class="flow-stat"><strong>97,400</strong> units output</div>
+        <div class="flow-stat">Scrap: <strong>0.4%</strong></div>
+        <div class="flow-stat">Cycle time: <strong>9s</strong></div>
+        <span class="flow-tag tag-green">Normal</span>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">5</div>
+        <div class="flow-name">Pre-Assembly</div>
+        <div class="flow-cost">€2.36</div>
+        <div class="flow-stat"><strong>96,900</strong> units output</div>
+        <div class="flow-stat">Scrap: <strong>0.5%</strong></div>
+        <div class="flow-stat">Cycle time: <strong>22s</strong></div>
+        <span class="flow-tag tag-amber">Monitor</span>
+      </div>
+      <div class="flow-stage">
+        <div class="flow-num">6</div>
+        <div class="flow-name">Assembly & Pack</div>
+        <div class="flow-cost">€4.60</div>
+        <div class="flow-stat"><strong>96,200</strong> units output</div>
+        <div class="flow-stat">Scrap: <strong>0.7%</strong></div>
+        <div class="flow-stat">Cycle time: <strong>41s</strong></div>
+        <span class="flow-tag tag-amber">Review</span>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:24px;font-size:12px;color:var(--muted);">
+      <span>Total accumulated cost: <strong style="color:var(--text);">€18.42 / unit</strong></span>
+      <span>Total scrap units: <strong style="color:var(--text);">3,800</strong></span>
+      <span>Scrap cost impact: <strong style="color:var(--red);">€94,600 / month</strong></span>
+      <span>Flow efficiency: <strong style="color:var(--green);">96.8%</strong></span>
+    </div>
+  </div>
+
+  <!-- ── SHIFT ANALYSIS ── -->
+  <div class="section-head">
+    <div><h2>Cost Per Shift Analysis</h2><span class="sub">Performance comparison across production shifts</span></div>
+    <a href="#">Shift Report →</a>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Shift Performance Comparison</div>
+      <div class="shift-row">
+        <div class="shift-label">Shift A</div>
+        <div class="shift-bar-wrap">
+          <div class="shift-bar-bg">
+            <div class="shift-bar-fill fill-a" style="width:89%">Shift A</div>
+          </div>
+          <div class="shift-stats">
+            <div class="shift-stat-item">Output: <strong>91,000</strong> units</div>
+            <div class="shift-stat-item">OEE: <strong>89%</strong></div>
+            <div class="shift-stat-item">Scrap: <strong>2.2%</strong></div>
+          </div>
+        </div>
+        <div class="shift-meta">
+          <div class="shift-cpu">€18.11</div>
+          <div class="shift-cpu-label">cost / unit</div>
+          <span class="shift-badge" style="background:#DCFCE7;color:#16A34A;">Best Shift</span>
+        </div>
+      </div>
+      <div class="shift-row">
+        <div class="shift-label">Shift B</div>
+        <div class="shift-bar-wrap">
+          <div class="shift-bar-bg">
+            <div class="shift-bar-fill fill-b" style="width:86%">Shift B</div>
+          </div>
+          <div class="shift-stats">
+            <div class="shift-stat-item">Output: <strong>87,000</strong> units</div>
+            <div class="shift-stat-item">OEE: <strong>86%</strong></div>
+            <div class="shift-stat-item">Scrap: <strong>3.1%</strong></div>
+          </div>
+        </div>
+        <div class="shift-meta">
+          <div class="shift-cpu">€18.79</div>
+          <div class="shift-cpu-label">cost / unit</div>
+          <span class="shift-badge" style="background:#FFFBEB;color:#D97706;">Average</span>
+        </div>
+      </div>
+      <div class="shift-row">
+        <div class="shift-label" style="color:var(--red);">Shift C</div>
+        <div class="shift-bar-wrap">
+          <div class="shift-bar-bg">
+            <div class="shift-bar-fill fill-c" style="width:82%">Shift C</div>
+          </div>
+          <div class="shift-stats">
+            <div class="shift-stat-item">Output: <strong>84,000</strong> units</div>
+            <div class="shift-stat-item">OEE: <strong>82%</strong></div>
+            <div class="shift-stat-item">Scrap: <strong>3.8%</strong></div>
+          </div>
+        </div>
+        <div class="shift-meta">
+          <div class="shift-cpu" style="color:var(--red);">€19.44</div>
+          <div class="shift-cpu-label">cost / unit</div>
+          <span class="shift-badge" style="background:#FEF2F2;color:#DC2626;">Most Expensive</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Shift OEE & Scrap Rate <span class="meta">Grouped comparison</span></div>
+      <div style="height:220px;">
+        <canvas id="shiftChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MACHINE ANALYSIS ── -->
+  <div class="section-head">
+    <div><h2>Machine Cost Analysis</h2><span class="sub">Availability, maintenance and energy costs per asset</span></div>
+    <a href="#">Asset Register →</a>
+  </div>
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Machine</th>
+          <th>Status</th>
+          <th>Availability</th>
+          <th>Maintenance Cost</th>
+          <th>Energy Cost</th>
+          <th>Cost / Unit</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="machine-name">Press-01</span><br><span style="font-size:11px;color:var(--muted)">Pressing Stage</span></td>
+          <td><span class="flow-tag tag-green">Online</span></td>
+          <td>
+            <div class="avail-bar">
+              <div class="avail-bar-track"><div class="avail-bar-fill" style="width:95%;background:var(--green)"></div></div>
+              <span class="avail-text" style="color:var(--green)">95%</span>
+            </div>
+          </td>
+          <td class="cost-cell">€8,200</td>
+          <td class="cost-cell">€12,500</td>
+          <td><strong>€1.22</strong></td>
+          <td style="color:var(--green);font-size:12px;font-weight:600;">▼ -0.8%</td>
+        </tr>
+        <tr>
+          <td><span class="machine-name">Press-02</span><br><span style="font-size:11px;color:var(--muted)">Pressing Stage</span></td>
+          <td><span class="flow-tag tag-amber">Warning</span></td>
+          <td>
+            <div class="avail-bar">
+              <div class="avail-bar-track"><div class="avail-bar-fill" style="width:92%;background:var(--amber)"></div></div>
+              <span class="avail-text" style="color:var(--amber)">92%</span>
+            </div>
+          </td>
+          <td class="cost-cell">€11,400</td>
+          <td class="cost-cell">€13,900</td>
+          <td><strong>€1.45</strong></td>
+          <td style="color:var(--amber);font-size:12px;font-weight:600;">▲ +1.4%</td>
+        </tr>
+        <tr>
+          <td><span class="machine-name">Machine-03</span><br><span style="font-size:11px;color:var(--muted)">Machining Stage</span></td>
+          <td><span class="flow-tag tag-red">Critical</span></td>
+          <td>
+            <div class="avail-bar">
+              <div class="avail-bar-track"><div class="avail-bar-fill" style="width:88%;background:var(--red)"></div></div>
+              <span class="avail-text" style="color:var(--red)">88%</span>
+            </div>
+          </td>
+          <td class="cost-cell" style="color:var(--red)">€19,800</td>
+          <td class="cost-cell" style="color:var(--amber)">€18,400</td>
+          <td><strong style="color:var(--red)">€2.31</strong></td>
+          <td style="color:var(--red);font-size:12px;font-weight:600;">▲ +5.2%</td>
+        </tr>
+        <tr>
+          <td><span class="machine-name">Machine-04</span><br><span style="font-size:11px;color:var(--muted)">Auto Processing</span></td>
+          <td><span class="flow-tag tag-green">Online</span></td>
+          <td>
+            <div class="avail-bar">
+              <div class="avail-bar-track"><div class="avail-bar-fill" style="width:96%;background:var(--green)"></div></div>
+              <span class="avail-text" style="color:var(--green)">96%</span>
+            </div>
+          </td>
+          <td class="cost-cell">€7,200</td>
+          <td class="cost-cell">€10,100</td>
+          <td><strong>€1.11</strong></td>
+          <td style="color:var(--green);font-size:12px;font-weight:600;">▼ -1.1%</td>
+        </tr>
+        <tr>
+          <td><span class="machine-name">Asm-Line-01</span><br><span style="font-size:11px;color:var(--muted)">Assembly Stage</span></td>
+          <td><span class="flow-tag tag-green">Online</span></td>
+          <td>
+            <div class="avail-bar">
+              <div class="avail-bar-track"><div class="avail-bar-fill" style="width:94%;background:var(--green)"></div></div>
+              <span class="avail-text" style="color:var(--green)">94%</span>
+            </div>
+          </td>
+          <td class="cost-cell">€9,100</td>
+          <td class="cost-cell">€11,200</td>
+          <td><strong>€1.38</strong></td>
+          <td style="color:var(--green);font-size:12px;font-weight:600;">▼ -0.4%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── MAINTENANCE IMPACT ── -->
+  <div class="section-head">
+    <div><h2>Maintenance Impact Analysis</h2><span class="sub">Downtime costs and failure analysis – current month</span></div>
+    <a href="#">Maintenance Log →</a>
+  </div>
+  <div class="maint-grid">
+    <div class="maint-card">
+      <div class="maint-label">Total Downtime</div>
+      <div class="maint-value amber">147 hrs</div>
+      <div class="maint-sub">18 events recorded</div>
+    </div>
+    <div class="maint-card">
+      <div class="maint-label">Lost Production</div>
+      <div class="maint-value">8,430 units</div>
+      <div class="maint-sub">3.2% of planned output</div>
+    </div>
+    <div class="maint-card critical">
+      <div class="maint-label">Downtime Cost</div>
+      <div class="maint-value red">€163,200</div>
+      <div class="maint-sub">vs. €141,000 in April</div>
+    </div>
+    <div class="maint-card critical">
+      <div class="maint-label">Most Expensive Failure</div>
+      <div class="maint-value red">€42,700</div>
+      <div class="maint-sub">Machining Line · 52 hrs</div>
+    </div>
+  </div>
+  <div style="margin-top:14px;">
+    <div class="card">
+      <div class="card-title">Downtime Trend – Last 6 Months <span class="meta">Hours / month</span></div>
+      <div style="height:160px;">
+        <canvas id="downtimeChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUALITY & SCRAP ── -->
+  <div class="section-head">
+    <div><h2>Scrap & Quality Analysis</h2><span class="sub">Root cause breakdown and monthly scrap cost</span></div>
+    <a href="#">Quality Report →</a>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Root Cause Analysis <span class="meta">% of total scrap events</span></div>
+      <div class="rc-list">
+        <div class="rc-item">
+          <div class="rc-header"><span class="rc-name">Machine Setup Errors</span><span class="rc-pct">31%</span></div>
+          <div class="rc-bar-bg"><div class="rc-bar-fill" style="width:31%;background:#2563EB"></div></div>
+        </div>
+        <div class="rc-item">
+          <div class="rc-header"><span class="rc-name">Material Defect</span><span class="rc-pct">24%</span></div>
+          <div class="rc-bar-bg"><div class="rc-bar-fill" style="width:24%;background:#7C3AED"></div></div>
+        </div>
+        <div class="rc-item">
+          <div class="rc-header"><span class="rc-name">Operator Error</span><span class="rc-pct">18%</span></div>
+          <div class="rc-bar-bg"><div class="rc-bar-fill" style="width:18%;background:#D97706"></div></div>
+        </div>
+        <div class="rc-item">
+          <div class="rc-header"><span class="rc-name">Machine Failure</span><span class="rc-pct">17%</span></div>
+          <div class="rc-bar-bg"><div class="rc-bar-fill" style="width:17%;background:#DC2626"></div></div>
+        </div>
+        <div class="rc-item">
+          <div class="rc-header"><span class="rc-name">Unknown / Other</span><span class="rc-pct">10%</span></div>
+          <div class="rc-bar-bg"><div class="rc-bar-fill" style="width:10%;background:#94A3B8"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Monthly Scrap Cost</div>
+          <div style="font-size:22px;font-weight:700;color:var(--red);">€94,600</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Scrap Units</div>
+          <div style="font-size:22px;font-weight:700;color:var(--amber);">7,336</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Rework Rate</div>
+          <div style="font-size:22px;font-weight:700;color:var(--text);">1.4%</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Scrap Cost by Stage <span class="meta">€ / month</span></div>
+      <div style="height:260px;">
+        <canvas id="scrapChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INDIRECT COSTS ── -->
+  <div class="section-head">
+    <div><h2>Indirect Cost Allocation</h2><span class="sub">Hidden overhead costs distributed to production</span></div>
+    <a href="#">Cost Centers →</a>
+  </div>
+  <div class="card">
+    <div class="indirect-grid">
+      <div class="indirect-item">
+        <span class="indirect-name">👤 Team Leaders</span>
+        <span class="indirect-amt">€42,000</span>
+      </div>
+      <div class="indirect-item">
+        <span class="indirect-name">👔 Production Managers</span>
+        <span class="indirect-amt">€24,000</span>
+      </div>
+      <div class="indirect-item">
+        <span class="indirect-name">💡 Facility Lighting</span>
+        <span class="indirect-amt">€17,000</span>
+      </div>
+      <div class="indirect-item">
+        <span class="indirect-name">🧹 Cleaning Services</span>
+        <span class="indirect-amt">€11,000</span>
+      </div>
+      <div class="indirect-item">
+        <span class="indirect-name">💨 Compressed Air</span>
+        <span class="indirect-amt">€22,000</span>
+      </div>
+      <div class="indirect-item">
+        <span class="indirect-name">🏢 Building & Facilities</span>
+        <span class="indirect-amt">€34,000</span>
+      </div>
+      <div class="indirect-item">
+        <span class="indirect-name">🖥️ IT Infrastructure</span>
+        <span class="indirect-amt">€9,000</span>
+      </div>
+      <div class="indirect-item" style="background:#F0FDF4;border-color:#86EFAC;">
+        <span class="indirect-name" style="color:var(--green);font-weight:600;">Per Unit Allocation</span>
+        <span class="indirect-amt" style="color:var(--green);">€0.61</span>
+      </div>
+    </div>
+    <div class="indirect-total">
+      <span class="label">Total Indirect Costs</span>
+      <span class="amount">€159,000 / month</span>
+    </div>
+    <div class="method-note">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Allocation method: Cost per production hour · Updated monthly · Approved by Finance Controller
+    </div>
+  </div>
+
+  <!-- ── PRODUCT COSTING ── -->
+  <div class="section-head">
+    <div><h2>Product Costing Module</h2><span class="sub">Full cost breakdown per product unit</span></div>
+    <span style="font-size:12px;color:var(--muted);">Selected: <strong style="color:var(--blue)">PRODUCT-X</strong></span>
+  </div>
+  <div class="card">
+    <div class="product-cost-wrap">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">Cost Components per Unit</div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#2563EB"></div>
+          <div class="cost-name">Materials</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:56%;background:#2563EB"></div></div></div>
+          <div class="cost-amount">€8.20</div>
+        </div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#7C3AED"></div>
+          <div class="cost-name">Labor</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:33%;background:#7C3AED"></div></div></div>
+          <div class="cost-amount">€3.40</div>
+        </div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#0891B2"></div>
+          <div class="cost-name">Energy</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:17%;background:#0891B2"></div></div></div>
+          <div class="cost-amount">€1.80</div>
+        </div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#D97706"></div>
+          <div class="cost-name">Maintenance</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:13%;background:#D97706"></div></div></div>
+          <div class="cost-amount">€1.20</div>
+        </div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#64748B"></div>
+          <div class="cost-name">Indirect Costs</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:20%;background:#64748B"></div></div></div>
+          <div class="cost-amount">€2.10</div>
+        </div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#16A34A"></div>
+          <div class="cost-name">Quality</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:5%;background:#16A34A"></div></div></div>
+          <div class="cost-amount">€0.50</div>
+        </div>
+        <div class="cost-line">
+          <div class="cost-dot" style="background:#DC2626"></div>
+          <div class="cost-name">Scrap Allocation</div>
+          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:11%;background:#DC2626"></div></div></div>
+          <div class="cost-amount">€1.22</div>
+        </div>
+      </div>
+      <div class="product-summary">
+        <h3>PRODUCT-X &nbsp;/&nbsp; Cost Summary</h3>
+        <div class="ps-row">
+          <span class="ps-label">Total Production Cost</span>
+          <span class="ps-val">€18.42</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Sales Price (list)</span>
+          <span class="ps-val blue">€24.90</span>
+        </div>
+        <div class="ps-row ps-total">
+          <span class="ps-label">Gross Profit</span>
+          <span class="ps-val green">€6.48</span>
+        </div>
+        <div class="margin-badge">
+          <div class="pct">26%</div>
+          <div class="lbl">Gross Margin</div>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);">
+          <div style="font-size:11px;color:#64748B;margin-bottom:8px;">Break-even at monthly volume</div>
+          <div style="font-size:13px;color:#94A3B8;">Min. units: <strong style="color:#fff">184,000</strong></div>
+          <div style="font-size:13px;color:#94A3B8;margin-top:4px;">Current output: <strong style="color:#4ADE80">262,000 ✓</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI INSIGHTS ── -->
+  <div class="section-head">
+    <div><h2>Executive Insights</h2><span class="sub">AI-powered analysis – updated 08:00 today</span></div>
+  </div>
+  <div class="ai-panel">
+    <div class="ai-header">
+      <div class="ai-icon">◈</div>
+      <div>
+        <div class="ai-title">Manufacturing Cost Intelligence – Executive Summary</div>
+        <div class="ai-subtitle">Automated insight generation · May 2026 · Plant 01</div>
+      </div>
+    </div>
+    <div class="ai-insights">
+      <div class="ai-insight">
+        <div class="ai-insight-dot dot-red"></div>
+        <div class="ai-insight-text"><strong>Machining stage contributes 27% of total production cost</strong> and generates the highest maintenance expenses in the plant. Machine-03 recorded 52 hours of unplanned downtime this month at a cost of €42,700. Preventive maintenance scheduling is recommended before end of Q2.</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-dot dot-amber"></div>
+        <div class="ai-insight-text"><strong>Shift C shows 7.3% higher production costs</strong> compared to Shift A (€19.44 vs. €18.11 per unit). Contributing factors include elevated scrap rate (3.8% vs. 2.2%), lower OEE (82% vs. 89%), and higher unplanned stops. A structured operator performance review is advised.</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-dot dot-green"></div>
+        <div class="ai-insight-text"><strong>Reducing the overall scrap rate by 1 percentage point</strong> would generate approximately €34,000 in additional monthly profit. Machine setup errors account for 31% of scrap events — standardized setup checklists and operator training could realistically recover 0.6–0.9% of scrap rate within 60 days.</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-dot dot-blue"></div>
+        <div class="ai-insight-text"><strong>Indirect costs of €159,000 per month (3.3% of total cost)</strong> are currently allocated by production hour. Switching to an ABC (Activity-Based Costing) method would improve product margin accuracy, particularly for PRODUCT-X where indirect allocation represents €2.10 of the €18.42 unit cost.</div>
+      </div>
+      <div class="ai-insight">
+        <div class="ai-insight-dot dot-green"></div>
+        <div class="ai-insight-text"><strong>Overall positive trend this month:</strong> OEE improved +2.3%, cost per unit decreased -1.2%, and monthly output increased +5.1%. Current trajectory supports achieving the Q2 cost-per-unit target of €17.80 by June if scrap and downtime improvements hold.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-item"><div class="status-dot" style="background:var(--green)"></div>All systems online</div>
+    <div class="status-item"><div class="status-dot" style="background:var(--blue)"></div>Data refreshed: 09:14</div>
+    <div class="status-item"><div class="status-dot" style="background:var(--amber)"></div>2 machines require attention</div>
+    <div class="status-item" style="margin-left:auto;color:var(--light)">MCID v2.4 · Plant 01 · May 2026</div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════ CHARTS -->
+<script>
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#64748B';
+
+// Doughnut
+new Chart(document.getElementById('doughnutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Materials', 'Labor', 'Energy', 'Maintenance', 'Indirect', 'Quality', 'Scrap'],
+    datasets: [{
+      data: [42, 21, 12, 9, 10, 3, 3],
+      backgroundColor: ['#2563EB','#7C3AED','#0891B2','#D97706','#64748B','#16A34A','#DC2626'],
+      borderWidth: 2,
+      borderColor: '#fff',
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    cutout: '62%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.label}: ${ctx.parsed}%  (€${(4820000*ctx.parsed/100/1000).toFixed(0)}k)`
+        }
+      }
+    }
+  }
+});
+
+// Monthly trend
+const months = ['Jan','Feb','Mar','Apr','May'];
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'Total Cost (€k)',
+        data: [4510, 4620, 4580, 4660, 4820],
+        borderColor: '#DC2626', backgroundColor: 'rgba(220,38,38,.08)',
+        tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: '#DC2626'
+      },
+      {
+        label: 'Revenue (€k)',
+        data: [5660, 5790, 5720, 5800, 5940],
+        borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,.06)',
+        tension: .35, fill: true, pointRadius: 4, pointBackgroundColor: '#16A34A'
+      },
+      {
+        label: 'Profit (€k)',
+        data: [1150, 1170, 1140, 1140, 1120],
+        borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,.06)',
+        tension: .35, fill: false, pointRadius: 4, pointBackgroundColor: '#2563EB',
+        borderDash: [4,3]
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 10, padding: 14 } },
+      tooltip: { mode: 'index', intersect: false }
+    },
+    scales: {
+      x: { grid: { color: '#F1F5F9' } },
+      y: {
+        grid: { color: '#F1F5F9' },
+        ticks: { callback: v => '€' + v }
+      }
+    }
+  }
+});
+
+// Shift grouped chart
+new Chart(document.getElementById('shiftChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Shift A', 'Shift B', 'Shift C'],
+    datasets: [
+      {
+        label: 'OEE %',
+        data: [89, 86, 82],
+        backgroundColor: ['rgba(22,163,74,.8)','rgba(217,119,6,.8)','rgba(220,38,38,.8)'],
+        borderRadius: 4, yAxisID: 'y'
+      },
+      {
+        label: 'Scrap Rate %',
+        data: [2.2, 3.1, 3.8],
+        backgroundColor: ['rgba(22,163,74,.3)','rgba(217,119,6,.3)','rgba(220,38,38,.3)'],
+        borderRadius: 4, type: 'line',
+        borderColor: '#94A3B8', pointRadius: 5, yAxisID: 'y2'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top', labels: { boxWidth: 10, padding: 12 } } },
+    scales: {
+      y: { grid: { color: '#F1F5F9' }, min: 70, max: 100, ticks: { callback: v => v+'%' } },
+      y2: { position: 'right', min: 0, max: 6, grid: { display: false }, ticks: { callback: v => v+'%' } }
+    }
+  }
+});
+
+// Downtime trend
+new Chart(document.getElementById('downtimeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dec','Jan','Feb','Mar','Apr','May'],
+    datasets: [{
+      label: 'Downtime hrs',
+      data: [118, 132, 109, 124, 141, 147],
+      backgroundColor: ctx => {
+        const v = ctx.raw;
+        if (v >= 140) return 'rgba(220,38,38,.75)';
+        if (v >= 125) return 'rgba(217,119,6,.75)';
+        return 'rgba(37,99,235,.6)';
+      },
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { color: '#F1F5F9' }, ticks: { callback: v => v + 'h' } }
+    }
+  }
+});
+
+// Scrap by stage
+new Chart(document.getElementById('scrapChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Pressing','Auto Proc.','Machining','Preparation','Pre-Assembly','Assembly'],
+    datasets: [{
+      label: 'Scrap Cost (€)',
+      data: [7200, 3600, 42100, 4800, 6000, 30900],
+      backgroundColor: ['#BFDBFE','#BFDBFE','rgba(220,38,38,.75)','#BFDBFE','rgba(217,119,6,.5)','rgba(217,119,6,.7)'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ' €' + ctx.raw.toLocaleString() } }
+    },
+    scales: {
+      x: { grid: { color: '#F1F5F9' }, ticks: { callback: v => '€'+v/1000+'k' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
