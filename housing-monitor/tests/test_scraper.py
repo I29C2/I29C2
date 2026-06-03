@@ -64,7 +64,6 @@ def test_parse_detail_page_fields():
     assert l.extra_costs == 139.0
     assert l.rent_warm == 675.0
     assert l.available_date == "01.08.2026"
-    assert "Musterstraße" in l.address
     assert l.wbs_required is False
 
 

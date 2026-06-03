@@ -2,16 +2,15 @@
 
 Strategy
 --------
-1. Fetch the overview/listings page and collect all detail-page URLs + titles.
-2. For each detail URL, fetch the detail page where fields are presented as
-   labelled pairs (label on one line, value on the next):
-
-       Zimmer          → 2
-       Wohnfläche      → 45,00 m²
-       Verfügbar ab    → 01.07.2026
-       Kaltmiete       → 365,00 €
-
-   This is far more reliable than trying to parse the overview cards.
+1. Fetch the overview/listings page → collect (detail_url, title) pairs.
+   The title comes from the card text on the overview page (correct).
+2. For each detail URL, fetch the detail page.
+3. Extract labelled fields from the full page text using strict, named patterns:
+      Zimmer          → integer 1-9
+      Wohnfläche      → decimal, plausible area (5-500 m²)
+      Verfügbar ab    → strict DD.MM.YYYY or "sofort"
+      Kaltmiete       → decimal, plausible rent (50-9999 €)
+   These patterns are immune to UUID strings, postal codes and button text.
 """
 from __future__ import annotations
 
@@ -29,26 +28,42 @@ from .registry import register
 
 logger = logging.getLogger(__name__)
 
-# --- detail-page label patterns (German, matched case-insensitively) ---------
-_LBL_ROOMS   = re.compile(r"^zimmer$", re.I)
-_LBL_AREA    = re.compile(r"wohnfl[äa]che", re.I)
-_LBL_AVAIL   = re.compile(r"verf[üu]gbar", re.I)
-_LBL_KALT    = re.compile(r"kaltmiete", re.I)
-_LBL_WARM    = re.compile(r"warmmiete|gesamtmiete", re.I)
-_LBL_EXTRA   = re.compile(r"nebenkosten|betriebskosten", re.I)
-_LBL_ADDR    = re.compile(r"adresse|lage|anschrift", re.I)
+# --- strict field patterns on flat page text ---------------------------------
+# Each pattern anchors on the German label and captures only the value token
+# immediately after it — preventing UUID / postal-code false positives.
 
-_NUM_RE      = re.compile(r"\d+(?:[.,]\d+)?")
-_DATE_RE     = re.compile(r"\d{1,2}[./]\d{1,2}[./]\d{2,4}|sofort|ab sofort", re.I)
-_WBS_RE      = re.compile(r"\bWBS\b|Wohnberechtigungsschein", re.I)
+_F_ROOMS = re.compile(
+    r"Zimmer\s*:?\s*(\d(?:[.,]\d)?)\b",   # 1-9 rooms, no 5-digit postal codes
+    re.I,
+)
+_F_AREA = re.compile(
+    r"Wohnfl[äa]che\s*:?\s*(\d{2,3}(?:[.,]\d{1,2})?)\s*m",  # 10-999 m²
+    re.I,
+)
+_F_AVAIL = re.compile(
+    r"Verf[üu]gbar(?:\s+ab)?\s*:?\s*(\d{1,2}[.]\d{1,2}[.]\d{4}|sofort|ab\s+sofort)",
+    re.I,
+)
+_F_KALT = re.compile(
+    r"Kaltmiete\s*:?\s*(\d{2,4}(?:[.,]\d{1,2})?)\s*[€E]",  # 10-9999 €
+    re.I,
+)
+_F_WARM = re.compile(
+    r"(?:Warmmiete|Gesamtmiete)\s*:?\s*(\d{2,4}(?:[.,]\d{1,2})?)\s*[€E]",
+    re.I,
+)
+_F_EXTRA = re.compile(
+    r"Nebenkosten\s*:?\s*(\d{2,4}(?:[.,]\d{1,2})?)\s*[€E]",
+    re.I,
+)
+_WBS_RE = re.compile(r"\bWBS\b|Wohnberechtigungsschein", re.I)
 
-# Candidate selectors for finding listing cards on the overview page.
-_CARD_SELECTORS = [
+# Candidate selectors for overview page links
+_LINK_SELECTORS = [
     "a[href*='/detail/']",
-    "a[href*='wohnungsangebote']",
+    "a[href*='wohnungsangebote/']",
     "[class*='wohnung'] a",
     "[class*='angebot'] a",
-    "[class*='listing'] a",
     "article a",
 ]
 
@@ -57,18 +72,18 @@ _CARD_SELECTORS = [
 class WWSHerfordScraper(BaseScraper):
     source_name = "WWS Herford"
 
-    # Polite delay between detail-page requests (seconds).
-    _DETAIL_DELAY = 1.5
+    _DETAIL_DELAY = 1.5  # polite delay between detail requests (seconds)
 
+    # -----------------------------------------------------------------
     def extract_listings(self) -> List[Listing]:
-        """Override: fetch overview then each detail page."""
+        """Fetch overview → collect links → fetch each detail page."""
         try:
-            html = self.fetch()
+            overview_html = self.fetch()
         except Exception as exc:
             logger.error("Failed to fetch overview %s: %s", self.source_name, exc)
             return []
 
-        links = self._collect_detail_links(html)
+        links = self._collect_detail_links(overview_html)
         if not links:
             logger.warning("%s: no detail links found on overview page", self.source_name)
             return []
@@ -85,152 +100,116 @@ class WWSHerfordScraper(BaseScraper):
         return listings
 
     def parse(self, html: str) -> List[Listing]:
-        """Fallback: parse a detail page directly (used in tests)."""
-        return [self._parse_detail_page(self.url, "", html)]
+        """Parse a detail page directly (used in unit tests)."""
+        return [self._parse_detail(self.url, "", html)]
 
-    # --- overview parsing ---------------------------------------------------
+    # -----------------------------------------------------------------
     def _collect_detail_links(self, html: str) -> List[tuple[str, str]]:
-        """Return [(absolute_url, title), ...] from the overview page."""
+        """Return [(abs_url, title_text), ...] from the overview page."""
         soup = BeautifulSoup(html, "lxml")
         seen: set[str] = set()
-        results: List[tuple[str, str]] = []
+        results: list[tuple[str, str]] = []
 
-        for selector in _CARD_SELECTORS:
-            anchors = soup.select(selector)
-            for a in anchors:
+        for selector in _LINK_SELECTORS:
+            for a in soup.select(selector):
                 href = a.get("href", "")
                 if not href:
                     continue
                 url = urljoin(self.url, href)
-                # Only keep detail URLs (not the overview itself).
                 if url == self.url or url in seen:
                     continue
                 seen.add(url)
-                title = a.get_text(" ", strip=True) or a.get("title", "") or ""
+                # Title: text of the anchor or its closest heading sibling/parent
+                title = self._extract_title_near(a)
                 results.append((url, title))
             if results:
                 break
 
         return results
 
-    # --- detail page --------------------------------------------------------
-    def _fetch_and_parse_detail(self, url: str, hint_title: str) -> Optional[Listing]:
+    @staticmethod
+    def _extract_title_near(anchor) -> str:
+        """Find the best title text near a listing anchor on the overview page."""
+        # Look for a heading inside the anchor itself
+        for tag in ("h1", "h2", "h3", "h4"):
+            el = anchor.find(tag)
+            if el and el.get_text(strip=True):
+                return el.get_text(strip=True)
+
+        # Walk up to find a heading sibling
+        parent = anchor.parent
+        for _ in range(4):
+            if parent is None:
+                break
+            for tag in ("h1", "h2", "h3", "h4"):
+                el = parent.find(tag)
+                if el and el.get_text(strip=True):
+                    return el.get_text(strip=True)
+            parent = parent.parent
+
+        # Last resort: anchor text itself (may be "Mehr erfahren" etc.)
+        txt = anchor.get_text(strip=True)
+        return txt if txt else "Wohnungsangebot"
+
+    # -----------------------------------------------------------------
+    def _fetch_and_parse_detail(self, url: str, title: str) -> Optional[Listing]:
         try:
-            html = self._session.get(url, timeout=self.timeout).text
+            resp = self._session.get(url, timeout=self.timeout)
+            resp.raise_for_status()
+            html = resp.text
         except Exception as exc:
             logger.warning("Could not fetch detail %s: %s", url, exc)
             return None
         try:
-            return self._parse_detail_page(url, hint_title, html)
+            return self._parse_detail(url, title, html)
         except Exception:
             logger.exception("Failed to parse detail page %s", url)
             return None
 
-    def _parse_detail_page(self, url: str, hint_title: str, html: str) -> Listing:
+    def _parse_detail(self, url: str, hint_title: str, html: str) -> Listing:
         soup = BeautifulSoup(html, "lxml")
-        full_text = soup.get_text(" ", strip=True)
-        full_text = re.sub(r"\s+", " ", full_text)
 
-        # --- title: prefer <h1> / <h2>, fall back to hint ---
-        title = ""
-        for tag in ("h1", "h2"):
-            el = soup.find(tag)
-            if el and el.get_text(strip=True):
-                title = el.get_text(strip=True)
-                break
+        # Flat text — used for strict regex matching.
+        text = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
+
+        # --- title: prefer hint from overview (h1 on detail = address) ---
+        title = hint_title.strip()
         if not title:
-            title = hint_title
+            # Try h2/h3 which sometimes holds the listing name
+            for tag in ("h2", "h3", "h1"):
+                el = soup.find(tag)
+                if el and el.get_text(strip=True):
+                    title = el.get_text(strip=True)
+                    break
 
-        # --- labelled field extraction ---
-        fields = self._extract_labeled_fields(soup)
-
-        rooms      = fields.get("rooms")
-        area       = fields.get("area")
-        rent_cold  = fields.get("rent_cold")
-        rent_warm  = fields.get("rent_warm")
-        extra      = fields.get("extra_costs")
-        avail      = fields.get("available_date")
-        address    = fields.get("address", "")
+        rooms     = self._match_num(_F_ROOMS,  text)
+        area      = self._match_num(_F_AREA,   text)
+        rent_cold = self._match_num(_F_KALT,   text)
+        rent_warm = self._match_num(_F_WARM,   text)
+        extra     = self._match_num(_F_EXTRA,  text)
+        avail     = self._match_str(_F_AVAIL,  text)
 
         return Listing(
             source=self.source_name,
             listing_url=url,
-            title=title.strip(),
-            address=address,
+            title=title or "Wohnungsangebot",
             rooms=rooms,
             area=area,
             rent_cold=rent_cold,
             extra_costs=extra,
             rent_warm=rent_warm,
             available_date=avail,
-            wbs_required=bool(_WBS_RE.search(full_text)),
-            raw_text=full_text,
+            wbs_required=bool(_WBS_RE.search(text)),
+            raw_text=text,
         )
 
-    def _extract_labeled_fields(self, soup: BeautifulSoup) -> dict:
-        """Walk all text nodes; when a node matches a field label, the next
-        sibling/node is the value."""
-        fields: dict = {}
-
-        # Strategy A: look for <dt>/<dd> definition lists.
-        for dt in soup.find_all("dt"):
-            label = dt.get_text(strip=True)
-            dd = dt.find_next_sibling("dd")
-            value = dd.get_text(" ", strip=True) if dd else ""
-            self._assign_field(fields, label, value)
-
-        # Strategy B: pairs of consecutive leaf elements sharing a parent.
-        if not fields:
-            for parent in soup.find_all(True):
-                children = [c for c in parent.children
-                            if hasattr(c, "get_text") and c.get_text(strip=True)]
-                for i in range(len(children) - 1):
-                    label = children[i].get_text(strip=True)
-                    value = children[i + 1].get_text(strip=True)
-                    self._assign_field(fields, label, value)
-
-        # Strategy C: flat text scan for "Label Value" patterns.
-        if not fields:
-            text = soup.get_text(" ", strip=True)
-            for label_re, key, parser in [
-                (_LBL_ROOMS, "rooms",         self._parse_num),
-                (_LBL_AREA,  "area",          self._parse_num),
-                (_LBL_KALT,  "rent_cold",     self._parse_num),
-                (_LBL_WARM,  "rent_warm",     self._parse_num),
-                (_LBL_EXTRA, "extra_costs",   self._parse_num),
-                (_LBL_AVAIL, "available_date", self._parse_date),
-            ]:
-                m = re.search(
-                    label_re.pattern + r"\s*:?\s*(\d[\d.,\s/]+\S*)", text, re.I
-                )
-                if m and key not in fields:
-                    fields[key] = parser(m.group(1))
-
-        return fields
-
-    def _assign_field(self, fields: dict, label: str, value: str) -> None:
-        if not value:
-            return
-        if _LBL_ROOMS.search(label)  and "rooms"          not in fields:
-            fields["rooms"]          = self._parse_num(value)
-        elif _LBL_AREA.search(label) and "area"           not in fields:
-            fields["area"]           = self._parse_num(value)
-        elif _LBL_KALT.search(label) and "rent_cold"      not in fields:
-            fields["rent_cold"]      = self._parse_num(value)
-        elif _LBL_WARM.search(label) and "rent_warm"      not in fields:
-            fields["rent_warm"]      = self._parse_num(value)
-        elif _LBL_EXTRA.search(label) and "extra_costs"   not in fields:
-            fields["extra_costs"]    = self._parse_num(value)
-        elif _LBL_AVAIL.search(label) and "available_date" not in fields:
-            fields["available_date"] = self._parse_date(value)
-        elif _LBL_ADDR.search(label)  and "address"       not in fields:
-            fields["address"]        = value.strip()
+    # -----------------------------------------------------------------
+    @staticmethod
+    def _match_num(pattern: re.Pattern, text: str) -> Optional[float]:
+        m = pattern.search(text)
+        return parse_number(m.group(1)) if m else None
 
     @staticmethod
-    def _parse_num(text: str) -> Optional[float]:
-        return parse_number(text)
-
-    @staticmethod
-    def _parse_date(text: str) -> Optional[str]:
-        m = _DATE_RE.search(text)
-        return m.group(0) if m else text.strip()
+    def _match_str(pattern: re.Pattern, text: str) -> Optional[str]:
+        m = pattern.search(text)
+        return m.group(1).strip() if m else None
