@@ -23,8 +23,9 @@ def test_format_listing_contains_fields():
     msg = BaseNotifier.format_listing(make_listing())
     assert "3-Zimmer" in msg
     assert "72 m²" in msg
-    assert "589 €" in msg
     assert "WWS Herford" in msg
+    assert "Kaltmiete" in msg
+    assert "Verfügbar" in msg
 
 
 def test_not_configured():

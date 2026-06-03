@@ -21,11 +21,17 @@ _PAGE = 10   # listings per Telegram message
 
 
 def _fmt_listing_short(row) -> str:
-    rent = row["rent_warm"] or row["rent_cold"]
-    rent_str = f"{int(rent)} €" if rent else "?"
-    rooms_str = f"{row['rooms']}Z" if row["rooms"] else "?"
+    rooms_str = f"{row['rooms']} Zimmer" if row["rooms"] else "?"
     area_str  = f"{int(row['area'])} m²" if row["area"] else "?"
-    return f"• {row['title'] or 'Wohnung'} | {rooms_str} | {area_str} | {rent_str}\n  {row['listing_url']}"
+    kalt_str  = f"{int(row['rent_cold'])} € Kaltmiete" if row["rent_cold"] else "?"
+    avail_str = row["available_date"] or "?"
+    title     = row["title"] or "Wohnungsangebot"
+    return (
+        f"🏠 *{title}*\n"
+        f"  🚪 {rooms_str}  |  📐 {area_str}  |  💶 {kalt_str}\n"
+        f"  📅 Verfügbar: {avail_str}\n"
+        f"  🔗 {row['listing_url']}"
+    )
 
 
 def build_bot_handlers(monitor: Monitor, db: Database,

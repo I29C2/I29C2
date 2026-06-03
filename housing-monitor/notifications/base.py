@@ -16,19 +16,18 @@ class BaseNotifier(ABC):
 
     @staticmethod
     def format_listing(listing: Listing) -> str:
-        """Human-readable message body (Markdown-friendly, channel-agnostic)."""
+        """Human-readable alert message (Markdown-friendly, channel-agnostic)."""
         def fmt(value, suffix=""):
             return f"{value}{suffix}" if value is not None and value != "" else "—"
 
-        rent = listing.effective_rent
         return (
-            "🏠 *New Apartment Found*\n\n"
-            f"*Title:* {fmt(listing.title)}\n"
-            f"*Rooms:* {fmt(listing.rooms)}\n"
-            f"*Area:* {fmt(listing.area, ' m²')}\n"
-            f"*Rent:* {fmt(rent, ' €')}\n"
-            f"*Available:* {fmt(listing.available_date)}\n"
-            f"*Source:* {fmt(listing.source)}\n"
+            "🏠 *Neue Wohnung gefunden!*\n\n"
+            f"*Titel:* {fmt(listing.title)}\n"
+            f"*Zimmer:* {fmt(listing.rooms)}\n"
+            f"*Wohnfläche:* {fmt(listing.area, ' m²')}\n"
+            f"*Kaltmiete:* {fmt(listing.rent_cold, ' €')}\n"
+            f"*Verfügbar ab:* {fmt(listing.available_date)}\n"
+            f"*Quelle:* {fmt(listing.source)}\n"
             f"*Link:* {fmt(listing.listing_url)}\n"
-            f"*Detected:* {listing.detected_at}"
+            f"*Erkannt:* {listing.detected_at}"
         )
