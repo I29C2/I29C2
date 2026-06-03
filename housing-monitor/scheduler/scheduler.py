@@ -1,4 +1,4 @@
-"""Periodic scheduling using APScheduler."""
+"""Periodic scheduling using APScheduler with active time-window support."""
 from __future__ import annotations
 
 import logging
@@ -11,9 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 class MonitorScheduler:
-    def __init__(self, interval_minutes: int, job: Callable[[], None]):
+    def __init__(self, interval_minutes: int, job: Callable[[], None],
+                 within_window: Callable[[], bool] | None = None):
         self.interval_minutes = interval_minutes
         self.job = job
+        self.within_window = within_window  # None means always active
         self._scheduler = BackgroundScheduler()
 
     def start(self, run_on_start: bool = True) -> None:
@@ -26,14 +28,18 @@ class MonitorScheduler:
             replace_existing=True,
         )
         self._scheduler.start()
-        logger.info("Scheduler started (every %d min)", self.interval_minutes)
+        logger.info("Scheduler started (every %d min, window check: %s)",
+                    self.interval_minutes, self.within_window is not None)
         if run_on_start:
             self._safe_job()
 
     def _safe_job(self) -> None:
+        if self.within_window is not None and not self.within_window():
+            logger.debug("Outside active window — scan skipped")
+            return
         try:
             self.job()
-        except Exception:  # a single failed scan must not kill the scheduler
+        except Exception:
             logger.exception("Scan job raised an exception")
 
     def shutdown(self) -> None:
