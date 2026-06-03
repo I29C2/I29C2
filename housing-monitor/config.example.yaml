@@ -41,9 +41,9 @@ sources:
 
 # Filtering rules. A listing must pass ALL configured rules to trigger a notification.
 filters:
-  min_rooms: 2
+  min_rooms: 3
   max_rooms: 4
-  min_area: 50               # sqm
+  min_area: 65               # sqm
   max_area: null
   max_rent: 650              # EUR (warm rent if available, else cold rent)
   min_rent: null
