@@ -21,12 +21,16 @@ CB_ALL      = "menu:all"
 CB_MATCHES  = "menu:matches"
 CB_EDIT     = "menu:edit"
 CB_MENU     = "menu:main"
+CB_SCAN     = "menu:scan"
 
 _MAIN_KEYBOARD = {
     "inline_keyboard": [
         [
             {"text": "📋 Toate ofertele",  "callback_data": CB_ALL},
             {"text": "🔔 Oferte potrivite", "callback_data": CB_MATCHES},
+        ],
+        [
+            {"text": "🔍 Scanare manuală", "callback_data": CB_SCAN},
         ],
         [
             {"text": "✏️ Editare criterii", "callback_data": CB_EDIT},
@@ -105,6 +109,7 @@ class BotHandlers:
         self.stats:         Callable[[], str] = lambda: "—"
         self.status:        Callable[[], str] = lambda: "—"
         self.test:          Callable[[], str] = lambda: "🔔 Test OK"
+        self.scan:          Callable[[], str] = lambda: "🔍 Scanare pornită..."
         # Called with (min_rooms, min_area) when user finishes editing.
         self.save_criteria: Callable[[float, float], None] = lambda r, a: None
 
@@ -184,13 +189,17 @@ class CommandListener:
             return
         command = text.lstrip("/").split("@")[0].split()[0].lower()
         dispatch = {
-            "start":   lambda: self.notifier.send_menu(chat_id),
-            "menu":    lambda: self.notifier.send_menu(chat_id),
-            "status":  lambda: self.notifier.send_text(self.h.status(),  chat_id),
-            "stats":   lambda: self.notifier.send_text(self.h.stats(),   chat_id),
-            "test":    lambda: self.notifier.send_text(self.h.test(),    chat_id),
-            "oferte":  lambda: self.notifier.send_text(self.h.all_listings(), chat_id),
+            "start":     lambda: self.notifier.send_menu(chat_id),
+            "menu":      lambda: self.notifier.send_menu(chat_id),
+            "status":    lambda: self.notifier.send_text(self.h.status(),  chat_id),
+            "stats":     lambda: self.notifier.send_text(self.h.stats(),   chat_id),
+            "test":      lambda: self.notifier.send_text(self.h.test(),    chat_id),
+            "oferte":    lambda: self.notifier.send_text(self.h.all_listings(), chat_id),
             "potrivite": lambda: self.notifier.send_text(self.h.matched(), chat_id),
+            "scan": lambda: (
+                self.notifier.send_text("🔍 Scanare în curs...", chat_id),
+                self.notifier.send_text(self.h.scan(), chat_id, reply_markup=_MAIN_KEYBOARD),
+            ),
         }
         fn = dispatch.get(command)
         if fn:
@@ -210,6 +219,10 @@ class CommandListener:
             self.notifier.send_text(self.h.matched(), chat_id)
         elif data == CB_EDIT:
             self._start_edit(chat_id)
+        elif data == CB_SCAN:
+            self.notifier.send_text("🔍 Scanare în curs...", chat_id)
+            result = self.h.scan()
+            self.notifier.send_text(result, chat_id, reply_markup=_MAIN_KEYBOARD)
         elif data == CB_MENU:
             self.notifier.send_menu(chat_id)
 

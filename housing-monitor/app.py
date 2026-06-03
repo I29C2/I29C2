@@ -77,6 +77,28 @@ def build_bot_handlers(monitor: Monitor, db: Database,
     def test() -> str:
         return "🔔 Test OK — botul funcționează corect."
 
+    def scan() -> str:
+        logger.info("Manual scan triggered via Telegram")
+        summary = monitor.run_once()
+        if summary["new"] == 0:
+            return (
+                "🔍 *Scanare finalizată*\n\n"
+                "Nu au fost găsite oferte noi față de ultima scanare."
+            )
+        matched_str = (
+            f"✅ {summary['matched']} ofert{'ă' if summary['matched'] == 1 else 'e'} "
+            f"potrivit{'ă' if summary['matched'] == 1 else 'e'} — "
+            f"{'notificare trimisă' if summary['notified'] > 0 else 'nicio notificare'}."
+            if summary["matched"] > 0
+            else "❌ Nicio ofertă nu corespunde criteriilor."
+        )
+        return (
+            f"🔍 *Scanare finalizată*\n\n"
+            f"Detectate: {summary['scraped']} oferte\n"
+            f"Noi: {summary['new']}\n"
+            f"{matched_str}"
+        )
+
     def save_criteria(min_rooms: float, min_area: float) -> None:
         config.save_filters(min_rooms, min_area)
         # Update the running filter engine immediately.
@@ -89,6 +111,7 @@ def build_bot_handlers(monitor: Monitor, db: Database,
     h.stats         = stats
     h.status        = status
     h.test          = test
+    h.scan          = scan
     h.save_criteria = save_criteria
     return h
 
