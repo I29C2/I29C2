@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+.venv/
+venv/
+.env
+config.yaml
+database/*.db
+database/*.db-wal
+database/*.db-shm
+logs/*.log

@@ -1,0 +1,54 @@
+# Housing Monitor Germany - configuration
+# Copy to config.yaml and adjust. Secrets should preferably come from env vars.
+
+telegram:
+  # These can be left empty here and provided via env vars
+  # TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID instead.
+  bot_token: ""
+  chat_id: ""
+  enable_bot_commands: true   # enable /status /stats /test /latest
+
+scheduler:
+  interval_minutes: 15        # allowed range: 5 - 1440
+  run_on_start: true          # run one scan immediately on startup
+
+storage:
+  database_path: "database/housing.db"
+
+logging:
+  level: "INFO"               # DEBUG | INFO | WARNING | ERROR
+  file: "logs/app.log"
+  max_bytes: 5242880          # 5 MB per file
+  backup_count: 5
+
+http:
+  timeout_seconds: 30
+  retries: 3                  # retry attempts on failure
+  backoff_seconds: 2          # base for exponential backoff
+  user_agent: "Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
+dashboard:
+  enabled: false
+  host: "0.0.0.0"
+  port: 8080
+
+# Sources to monitor. Each entry maps to a registered scraper by `type`.
+sources:
+  - name: "WWS Herford"
+    type: "wws_herford"
+    enabled: true
+    url: "https://www.wws-herford.de/wohnen/wohnungsangebote"
+
+# Filtering rules. A listing must pass ALL configured rules to trigger a notification.
+filters:
+  min_rooms: 2
+  max_rooms: 4
+  min_area: 50               # sqm
+  max_area: null
+  max_rent: 650              # EUR (warm rent if available, else cold rent)
+  min_rent: null
+  available_within_months: 3 # accept listings available now or within N months
+  exclude_wbs: true          # exclude listings requiring Wohnberechtigungsschein
+  keywords_include: []       # listing must contain at least one (if non-empty), e.g. [Balkon, Garage]
+  keywords_exclude:          # listing must contain none of these
+    - "Seniorenwohnung"
