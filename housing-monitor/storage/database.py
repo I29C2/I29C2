@@ -123,6 +123,13 @@ class Database:
             "SELECT * FROM listings ORDER BY first_seen DESC LIMIT ?", (limit,)
         ).fetchall()
 
+    def matched(self, limit: int = 10) -> List[sqlite3.Row]:
+        """Listings that passed the filter and were notified."""
+        return self.conn.execute(
+            "SELECT * FROM listings WHERE notified = 1 ORDER BY first_seen DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+
     # --- sources / stats ---------------------------------------------------
     def record_scan(self, source: str, count: int) -> None:
         now = datetime.now().isoformat(timespec="seconds")

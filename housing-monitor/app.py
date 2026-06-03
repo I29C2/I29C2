@@ -11,49 +11,86 @@ from core.config import Config, ConfigError
 from core.logging_config import setup_logging
 from monitor import Monitor
 from notifications import TelegramNotifier
+from notifications.telegram_notifier import BotHandlers
 from scheduler import MonitorScheduler
 from storage import Database
 
 logger = logging.getLogger("housing_monitor")
 
+_PAGE = 10   # listings per Telegram message
 
-def build_command_handlers(monitor: Monitor, db: Database, started_at: datetime):
-    """Telegram command handlers: /status /stats /test /latest."""
+
+def _fmt_listing_short(row) -> str:
+    rent = row["rent_warm"] or row["rent_cold"]
+    rent_str = f"{int(rent)} €" if rent else "?"
+    rooms_str = f"{row['rooms']}Z" if row["rooms"] else "?"
+    area_str  = f"{int(row['area'])} m²" if row["area"] else "?"
+    return f"• {row['title'] or 'Wohnung'} | {rooms_str} | {area_str} | {rent_str}\n  {row['listing_url']}"
+
+
+def build_bot_handlers(monitor: Monitor, db: Database,
+                       config: Config, started_at: datetime) -> BotHandlers:
+    h = BotHandlers()
+
+    def all_listings() -> str:
+        rows = db.latest(limit=_PAGE)
+        if not rows:
+            return "📭 Nicio ofertă stocată încă."
+        lines = [f"📋 *Ultimele {len(rows)} oferte detectate:*\n"]
+        lines += [_fmt_listing_short(r) for r in rows]
+        return "\n".join(lines)
+
+    def matched() -> str:
+        rows = db.matched(limit=_PAGE)
+        if not rows:
+            return "🔕 Nicio ofertă potrivită criteriilor încă."
+        lines = [f"🔔 *Ultimele {len(rows)} oferte potrivite:*\n"]
+        lines += [_fmt_listing_short(r) for r in rows]
+        return "\n".join(lines)
+
+    def stats() -> str:
+        s = db.stats()
+        w = config.window
+        return (
+            "📊 *Statistici*\n"
+            f"Total oferte detectate: {s['total_listings']}\n"
+            f"Oferte potrivite: {s['notified_listings']}\n"
+            f"Notificări trimise: {s['notifications_sent']}\n"
+            f"Ultima scanare: {s['last_scan'] or 'n/a'}"
+        )
 
     def status() -> str:
         uptime = datetime.now() - started_at
         s = db.stats()
+        w = config.window
+        in_win = "✅ Da" if config.within_window() else "⏸️ În afara ferestrei"
         return (
-            "✅ *Housing Monitor running*\n"
+            "🟢 *Housing Monitor activ*\n"
             f"Uptime: {str(uptime).split('.')[0]}\n"
-            f"Last scan: {s['last_scan'] or 'n/a'}\n"
-            f"Sources: {len(monitor.config.sources)}\n"
-            f"Interval: {monitor.config.interval_minutes} min"
-        )
-
-    def stats() -> str:
-        s = db.stats()
-        return (
-            "📊 *Statistics*\n"
-            f"Total listings: {s['total_listings']}\n"
-            f"Notified: {s['notified_listings']}\n"
-            f"Notifications sent: {s['notifications_sent']}\n"
-            f"Last scan: {s['last_scan'] or 'n/a'}"
+            f"Interval: {config.interval_minutes} min\n"
+            f"Fereastră activă: {w.get('start_hour',8)}:00–{w.get('end_hour',20)}:00, L–V\n"
+            f"Scanează acum: {in_win}\n"
+            f"Ultima scanare: {s['last_scan'] or 'n/a'}\n"
+            f"Surse: {len(monitor.config.sources)}"
         )
 
     def test() -> str:
-        return "🔔 Test notification — your bot is configured correctly."
+        return "🔔 Test OK — botul funcționează corect."
 
-    def latest() -> str:
-        rows = db.latest(5)
-        if not rows:
-            return "No listings stored yet."
-        lines = ["🆕 *Latest listings*"]
-        for r in rows:
-            lines.append(f"• {r['title']} — {r['rent_warm'] or r['rent_cold'] or '?'} € — {r['listing_url']}")
-        return "\n".join(lines)
+    def save_criteria(min_rooms: float, min_area: float) -> None:
+        config.save_filters(min_rooms, min_area)
+        # Update the running filter engine immediately.
+        monitor.filter_engine.f["min_rooms"] = min_rooms
+        monitor.filter_engine.f["min_area"]  = min_area
+        logger.info("Criteria updated: min_rooms=%s, min_area=%s", min_rooms, min_area)
 
-    return {"status": status, "stats": stats, "test": test, "latest": latest}
+    h.all_listings  = all_listings
+    h.matched       = matched
+    h.stats         = stats
+    h.status        = status
+    h.test          = test
+    h.save_criteria = save_criteria
+    return h
 
 
 def main() -> int:
@@ -73,22 +110,25 @@ def main() -> int:
 
     logger.info("Starting Housing Monitor Germany")
 
-    db = Database(config.database_path)
-    tg = config.telegram
+    db       = Database(config.database_path)
+    tg       = config.telegram
     notifier = TelegramNotifier(tg.get("bot_token", ""), tg.get("chat_id", ""))
     if not notifier.configured:
         logger.warning("Telegram is not configured — notifications will be skipped")
 
-    monitor = Monitor(config, db, notifier)
+    monitor    = Monitor(config, db, notifier)
     started_at = datetime.now()
+    listener   = None
 
-    # Optional Telegram command listener
-    listener = None
     if tg.get("enable_bot_commands", True) and notifier.configured:
-        handlers = build_command_handlers(monitor, db, started_at)
+        handlers = build_bot_handlers(monitor, db, config, started_at)
         listener = notifier.start_command_listener(handlers)
 
-    scheduler = MonitorScheduler(config.interval_minutes, monitor.run_once)
+    scheduler = MonitorScheduler(
+        interval_minutes=config.interval_minutes,
+        job=monitor.run_once,
+        within_window=config.within_window,
+    )
 
     stop_event = threading.Event()
 
@@ -96,7 +136,7 @@ def main() -> int:
         logger.info("Received signal %s, shutting down", signum)
         stop_event.set()
 
-    signal.signal(signal.SIGINT, _shutdown)
+    signal.signal(signal.SIGINT,  _shutdown)
     signal.signal(signal.SIGTERM, _shutdown)
 
     scheduler.start(run_on_start=config.run_on_start)

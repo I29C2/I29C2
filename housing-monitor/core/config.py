@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -51,11 +52,36 @@ class Config:
 
     @property
     def interval_minutes(self) -> int:
-        return int(self.get("scheduler", "interval_minutes", default=15))
+        return int(self.get("scheduler", "interval_minutes", default=60))
 
     @property
     def run_on_start(self) -> bool:
         return bool(self.get("scheduler", "run_on_start", default=True))
+
+    @property
+    def window(self) -> dict:
+        return self.get("scheduler", "window", default={
+            "start_hour": 8, "end_hour": 20, "weekdays": [0, 1, 2, 3, 4]
+        }) or {}
+
+    def within_window(self) -> bool:
+        """Return True if current local time is inside the active scanning window."""
+        w = self.window
+        now = datetime.now()
+        start = int(w.get("start_hour", 8))
+        end = int(w.get("end_hour", 20))
+        weekdays = w.get("weekdays", [0, 1, 2, 3, 4])
+        return now.weekday() in weekdays and start <= now.hour < end
+
+    def save_filters(self, min_rooms: float, min_area: float) -> None:
+        """Persist updated filter values back to config.yaml."""
+        self.raw.setdefault("filters", {})
+        self.raw["filters"]["min_rooms"] = min_rooms
+        self.raw["filters"]["min_area"] = min_area
+        p = Path("config.yaml")
+        with p.open("w", encoding="utf-8") as fh:
+            import yaml
+            yaml.safe_dump(self.raw, fh, allow_unicode=True, default_flow_style=False)
 
     @property
     def database_path(self) -> str:

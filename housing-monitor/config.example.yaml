@@ -6,11 +6,17 @@ telegram:
   # TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID instead.
   bot_token: ""
   chat_id: ""
-  enable_bot_commands: true   # enable /status /stats /test /latest
+  enable_bot_commands: true   # enable inline menu + commands
 
 scheduler:
-  interval_minutes: 15        # allowed range: 5 - 1440
-  run_on_start: true          # run one scan immediately on startup
+  interval_minutes: 60        # allowed range: 5 - 1440
+  run_on_start: true          # run one scan immediately on startup (if within window)
+  # Active scanning window: only scan inside these hours on these weekdays.
+  # Outside the window the scheduler sleeps but stays alive.
+  window:
+    start_hour: 8             # 08:00 local time
+    end_hour: 20              # 20:00 local time (scans run before this hour)
+    weekdays: [0,1,2,3,4]    # 0=Monday … 4=Friday
 
 storage:
   database_path: "database/housing.db"
