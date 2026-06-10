@@ -448,6 +448,30 @@
   .status-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; }
 
+  /* ── KPI SPARKLINE ── */
+  .kpi-spark { margin-top: 10px; height: 32px; }
+  .kpi-spark canvas { width: 100% !important; height: 32px !important; }
+  .kpi-card { transition: box-shadow .2s, transform .2s; }
+  .kpi-card:hover { box-shadow: 0 4px 14px rgba(15,23,42,.10); transform: translateY(-2px); }
+
+  /* ── SORTABLE TABLE ── */
+  .data-table th.sortable { cursor: pointer; user-select: none; }
+  .data-table th.sortable:hover { color: var(--blue); }
+  .data-table th.sortable .sort-arrow { font-size: 9px; margin-left: 4px; opacity: .55; }
+
+  /* ── PRODUCT SELECTOR ── */
+  .product-select {
+    background: #fff; border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 10px; font-size: 13px; font-weight: 600;
+    color: var(--blue); cursor: pointer;
+  }
+  .cost-bar-fill, .rc-bar-fill, .avail-bar-fill { transition: width .6s ease; }
+
+  /* ── SECTION ANCHOR OFFSET ── */
+  .anchor { scroll-margin-top: calc(var(--topnav-h) + 12px); }
+
+  html { scroll-behavior: smooth; }
+
   /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -481,15 +505,15 @@
       <span>MCID Platform v2.4</span>
     </div>
   </div>
-  <div class="topnav-links">
-    <a href="#" class="active">Overview</a>
-    <a href="#">Production</a>
-    <a href="#">Cost Analysis</a>
-    <a href="#">Maintenance</a>
-    <a href="#">Quality</a>
-    <a href="#">Shift Analysis</a>
-    <a href="#">Product Costing</a>
-    <a href="#">Financial Impact</a>
+  <div class="topnav-links" id="topnavLinks">
+    <a href="#sec-overview" class="active">Overview</a>
+    <a href="#sec-production">Production</a>
+    <a href="#sec-costs">Cost Analysis</a>
+    <a href="#sec-maintenance">Maintenance</a>
+    <a href="#sec-quality">Quality</a>
+    <a href="#sec-shifts">Shift Analysis</a>
+    <a href="#sec-product">Product Costing</a>
+    <a href="#sec-financial">Financial Impact</a>
   </div>
   <div class="topnav-right">
     <span class="badge-live">● LIVE</span>
@@ -571,53 +595,53 @@
   </div>
 
   <!-- ── KPI CARDS ── -->
-  <div class="grid-6">
+  <div class="grid-6 anchor" id="sec-overview">
     <div class="kpi-card">
-      <div class="kpi-icon icon-blue" style="float:right">💰</div>
       <div class="kpi-label">Total Monthly Cost</div>
-      <div class="kpi-value">€4.82M</div>
+      <div class="kpi-value" data-count="4.82" data-prefix="€" data-suffix="M" data-dec="2">€0.00M</div>
       <span class="kpi-trend trend-bad-up">▲ +3.4%</span>
       <div class="kpi-footer">vs. April 2026</div>
+      <div class="kpi-spark"><canvas data-spark="4510,4620,4580,4660,4820" data-color="#DC2626"></canvas></div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon icon-blue" style="float:right">📦</div>
       <div class="kpi-label">Cost Per Unit</div>
-      <div class="kpi-value">€18.42</div>
+      <div class="kpi-value" data-count="18.42" data-prefix="€" data-dec="2">€0.00</div>
       <span class="kpi-trend trend-good-down">▼ -1.2%</span>
       <div class="kpi-footer">Target: €17.80</div>
+      <div class="kpi-spark"><canvas data-spark="19.1,18.9,18.7,18.65,18.42" data-color="#16A34A"></canvas></div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon icon-green" style="float:right">🏭</div>
       <div class="kpi-label">Monthly Output</div>
-      <div class="kpi-value">262,000</div>
+      <div class="kpi-value" data-count="262000" data-dec="0" data-locale="1">0</div>
       <span class="kpi-trend trend-up">▲ +5.1%</span>
       <div class="kpi-footer">units produced</div>
+      <div class="kpi-spark"><canvas data-spark="236,242,247,249,262" data-color="#2563EB"></canvas></div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon icon-blue" style="float:right">⚙️</div>
       <div class="kpi-label">OEE</div>
-      <div class="kpi-value">87.4%</div>
+      <div class="kpi-value" data-count="87.4" data-suffix="%" data-dec="1">0%</div>
       <span class="kpi-trend trend-up">▲ +2.3%</span>
       <div class="kpi-footer">World-class: ≥85%</div>
+      <div class="kpi-spark"><canvas data-spark="84.1,85.0,85.6,85.4,87.4" data-color="#2563EB"></canvas></div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon icon-amber" style="float:right">🗑️</div>
       <div class="kpi-label">Scrap Rate</div>
-      <div class="kpi-value">2.8%</div>
+      <div class="kpi-value" data-count="2.8" data-suffix="%" data-dec="1">0%</div>
       <span class="kpi-trend trend-good-down">▼ -0.5%</span>
       <div class="kpi-footer">Target: ≤2.0%</div>
+      <div class="kpi-spark"><canvas data-spark="3.6,3.4,3.3,3.3,2.8" data-color="#D97706"></canvas></div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon icon-green" style="float:right">📈</div>
       <div class="kpi-label">Est. Monthly Profit</div>
-      <div class="kpi-value">€1.12M</div>
+      <div class="kpi-value" data-count="1.12" data-prefix="€" data-suffix="M" data-dec="2">€0.00M</div>
       <span class="kpi-trend trend-up">▲ +4.7%</span>
       <div class="kpi-footer">Margin: 18.8%</div>
+      <div class="kpi-spark"><canvas data-spark="1.15,1.17,1.14,1.14,1.12" data-color="#16A34A"></canvas></div>
     </div>
   </div>
 
   <!-- ── COST BREAKDOWN + TREND ── -->
-  <div class="section-head">
+  <div class="section-head anchor" id="sec-costs">
     <div><h2>Production Cost Breakdown</h2><span class="sub">Cost composition and monthly trend – May 2026</span></div>
     <a href="#">View Detail →</a>
   </div>
@@ -647,7 +671,7 @@
   </div>
 
   <!-- ── PRODUCTION FLOW ── -->
-  <div class="section-head">
+  <div class="section-head anchor" id="sec-production">
     <div><h2>Production Flow Cost Analysis</h2><span class="sub">Cost accumulation per manufacturing stage</span></div>
     <a href="#">Configure Stages →</a>
   </div>
@@ -717,7 +741,7 @@
   </div>
 
   <!-- ── SHIFT ANALYSIS ── -->
-  <div class="section-head">
+  <div class="section-head anchor" id="sec-shifts">
     <div><h2>Cost Per Shift Analysis</h2><span class="sub">Performance comparison across production shifts</span></div>
     <a href="#">Shift Report →</a>
   </div>
@@ -793,15 +817,15 @@
     <a href="#">Asset Register →</a>
   </div>
   <div class="card">
-    <table class="data-table">
+    <table class="data-table" id="machineTable">
       <thead>
         <tr>
-          <th>Machine</th>
+          <th class="sortable" data-col="0" data-type="text">Machine<span class="sort-arrow">↕</span></th>
           <th>Status</th>
-          <th>Availability</th>
-          <th>Maintenance Cost</th>
-          <th>Energy Cost</th>
-          <th>Cost / Unit</th>
+          <th class="sortable" data-col="2" data-type="num">Availability<span class="sort-arrow">↕</span></th>
+          <th class="sortable" data-col="3" data-type="num">Maintenance Cost<span class="sort-arrow">↕</span></th>
+          <th class="sortable" data-col="4" data-type="num">Energy Cost<span class="sort-arrow">↕</span></th>
+          <th class="sortable" data-col="5" data-type="num">Cost / Unit<span class="sort-arrow">↕</span></th>
           <th>Trend</th>
         </tr>
       </thead>
@@ -881,7 +905,7 @@
   </div>
 
   <!-- ── MAINTENANCE IMPACT ── -->
-  <div class="section-head">
+  <div class="section-head anchor" id="sec-maintenance">
     <div><h2>Maintenance Impact Analysis</h2><span class="sub">Downtime costs and failure analysis – current month</span></div>
     <a href="#">Maintenance Log →</a>
   </div>
@@ -917,7 +941,7 @@
   </div>
 
   <!-- ── QUALITY & SCRAP ── -->
-  <div class="section-head">
+  <div class="section-head anchor" id="sec-quality">
     <div><h2>Scrap & Quality Analysis</h2><span class="sub">Root cause breakdown and monthly scrap cost</span></div>
     <a href="#">Quality Report →</a>
   </div>
@@ -1020,81 +1044,61 @@
   </div>
 
   <!-- ── PRODUCT COSTING ── -->
-  <div class="section-head">
+  <div class="section-head anchor" id="sec-product">
     <div><h2>Product Costing Module</h2><span class="sub">Full cost breakdown per product unit</span></div>
-    <span style="font-size:12px;color:var(--muted);">Selected: <strong style="color:var(--blue)">PRODUCT-X</strong></span>
+    <select class="product-select" id="productSelect">
+      <option value="X">PRODUCT-X</option>
+      <option value="Y">PRODUCT-Y</option>
+      <option value="Z">PRODUCT-Z</option>
+    </select>
   </div>
   <div class="card">
     <div class="product-cost-wrap">
       <div>
         <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">Cost Components per Unit</div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#2563EB"></div>
-          <div class="cost-name">Materials</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:56%;background:#2563EB"></div></div></div>
-          <div class="cost-amount">€8.20</div>
-        </div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#7C3AED"></div>
-          <div class="cost-name">Labor</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:33%;background:#7C3AED"></div></div></div>
-          <div class="cost-amount">€3.40</div>
-        </div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#0891B2"></div>
-          <div class="cost-name">Energy</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:17%;background:#0891B2"></div></div></div>
-          <div class="cost-amount">€1.80</div>
-        </div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#D97706"></div>
-          <div class="cost-name">Maintenance</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:13%;background:#D97706"></div></div></div>
-          <div class="cost-amount">€1.20</div>
-        </div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#64748B"></div>
-          <div class="cost-name">Indirect Costs</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:20%;background:#64748B"></div></div></div>
-          <div class="cost-amount">€2.10</div>
-        </div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#16A34A"></div>
-          <div class="cost-name">Quality</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:5%;background:#16A34A"></div></div></div>
-          <div class="cost-amount">€0.50</div>
-        </div>
-        <div class="cost-line">
-          <div class="cost-dot" style="background:#DC2626"></div>
-          <div class="cost-name">Scrap Allocation</div>
-          <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:11%;background:#DC2626"></div></div></div>
-          <div class="cost-amount">€1.22</div>
-        </div>
+        <div id="costLines"></div>
       </div>
       <div class="product-summary">
-        <h3>PRODUCT-X &nbsp;/&nbsp; Cost Summary</h3>
+        <h3><span id="psName">PRODUCT-X</span> &nbsp;/&nbsp; Cost Summary</h3>
         <div class="ps-row">
           <span class="ps-label">Total Production Cost</span>
-          <span class="ps-val">€18.42</span>
+          <span class="ps-val" id="psTotal">€18.42</span>
         </div>
         <div class="ps-row">
           <span class="ps-label">Sales Price (list)</span>
-          <span class="ps-val blue">€24.90</span>
+          <span class="ps-val blue" id="psPrice">€24.90</span>
         </div>
         <div class="ps-row ps-total">
           <span class="ps-label">Gross Profit</span>
-          <span class="ps-val green">€6.48</span>
+          <span class="ps-val green" id="psProfit">€6.48</span>
         </div>
         <div class="margin-badge">
-          <div class="pct">26%</div>
+          <div class="pct" id="psMargin">26%</div>
           <div class="lbl">Gross Margin</div>
         </div>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);">
           <div style="font-size:11px;color:#64748B;margin-bottom:8px;">Break-even at monthly volume</div>
-          <div style="font-size:13px;color:#94A3B8;">Min. units: <strong style="color:#fff">184,000</strong></div>
+          <div style="font-size:13px;color:#94A3B8;">Min. units: <strong style="color:#fff" id="psBreakeven">184,000</strong></div>
           <div style="font-size:13px;color:#94A3B8;margin-top:4px;">Current output: <strong style="color:#4ADE80">262,000 ✓</strong></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── FINANCIAL IMPACT ── -->
+  <div class="section-head anchor" id="sec-financial">
+    <div><h2>Financial Impact – Revenue to Profit Bridge</h2><span class="sub">Waterfall view of how cost categories consume monthly revenue</span></div>
+    <a href="#">P&amp;L Detail →</a>
+  </div>
+  <div class="card">
+    <div style="height:300px;">
+      <canvas id="waterfallChart"></canvas>
+    </div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:24px;font-size:12px;color:var(--muted);flex-wrap:wrap;">
+      <span>Monthly Revenue: <strong style="color:var(--text);">€5.94M</strong></span>
+      <span>Total Production Cost: <strong style="color:var(--red);">€4.82M</strong></span>
+      <span>Net Result: <strong style="color:var(--green);">€1.12M profit (18.8% margin)</strong></span>
+      <span>Largest cost driver: <strong style="color:var(--text);">Materials (€2.02M, 42% of cost)</strong></span>
     </div>
   </div>
 
@@ -1304,6 +1308,144 @@ new Chart(document.getElementById('scrapChart'), {
     }
   }
 });
+
+// ── Waterfall: Revenue → cost categories → Profit (floating bars)
+(() => {
+  const rev = 5940;
+  const costs = [
+    ['Materials', 2024], ['Labor', 1012], ['Energy', 578],
+    ['Maintenance', 434], ['Indirect', 482], ['Quality', 145], ['Scrap', 145]
+  ];
+  const labels = ['Revenue', ...costs.map(c => c[0]), 'Profit'];
+  let running = rev;
+  const bars = [[0, rev]];
+  costs.forEach(([, v]) => { bars.push([running - v, running]); running -= v; });
+  bars.push([0, running]);
+  const colors = ['#2563EB', ...costs.map(() => 'rgba(220,38,38,.65)'), '#16A34A'];
+  new Chart(document.getElementById('waterfallChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: bars, backgroundColor: colors, borderRadius: 4, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => {
+          const [lo, hi] = ctx.raw;
+          return ' €' + (hi - lo).toLocaleString() + 'k';
+        }}}
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: '#F1F5F9' }, ticks: { callback: v => '€' + v / 1000 + 'M' } }
+      }
+    }
+  });
+})();
+
+// ── KPI sparklines
+document.querySelectorAll('canvas[data-spark]').forEach(cv => {
+  const data = cv.dataset.spark.split(',').map(Number);
+  const color = cv.dataset.color || '#2563EB';
+  new Chart(cv, {
+    type: 'line',
+    data: { labels: data.map((_, i) => i), datasets: [{
+      data, borderColor: color, borderWidth: 2,
+      backgroundColor: color + '18', fill: true,
+      pointRadius: 0, tension: .4
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: { duration: 900 },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } }
+    }
+  });
+});
+
+// ── Animated KPI counters
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = parseFloat(el.dataset.count);
+  const dec = parseInt(el.dataset.dec || 0);
+  const pre = el.dataset.prefix || '', suf = el.dataset.suffix || '';
+  const useLocale = el.dataset.locale === '1';
+  const dur = 1100, t0 = performance.now();
+  (function tick(t) {
+    const p = Math.min((t - t0) / dur, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const v = target * eased;
+    el.textContent = pre + (useLocale ? Math.round(v).toLocaleString() : v.toFixed(dec)) + suf;
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+});
+
+// ── Scrollspy
+(() => {
+  const links = [...document.querySelectorAll('#topnavLinks a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const setActive = id => links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+  }, { rootMargin: '-80px 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+})();
+
+// ── Sortable machine table
+(() => {
+  const table = document.getElementById('machineTable');
+  const tbody = table.querySelector('tbody');
+  const parseNum = s => parseFloat(s.replace(/[^\d.-]/g, '')) || 0;
+  table.querySelectorAll('th.sortable').forEach(th => {
+    let asc = true;
+    th.addEventListener('click', () => {
+      const col = +th.dataset.col, isNum = th.dataset.type === 'num';
+      const rows = [...tbody.querySelectorAll('tr')];
+      rows.sort((a, b) => {
+        const av = a.cells[col].textContent.trim(), bv = b.cells[col].textContent.trim();
+        const cmp = isNum ? parseNum(av) - parseNum(bv) : av.localeCompare(bv);
+        return asc ? cmp : -cmp;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+      table.querySelectorAll('.sort-arrow').forEach(s => s.textContent = '↕');
+      th.querySelector('.sort-arrow').textContent = asc ? '↑' : '↓';
+      asc = !asc;
+    });
+  });
+})();
+
+// ── Product costing module (interactive)
+(() => {
+  const COMPONENTS = [
+    ['Materials', '#2563EB'], ['Labor', '#7C3AED'], ['Energy', '#0891B2'],
+    ['Maintenance', '#D97706'], ['Indirect Costs', '#64748B'],
+    ['Quality', '#16A34A'], ['Scrap Allocation', '#DC2626']
+  ];
+  const PRODUCTS = {
+    X: { costs: [8.20, 3.40, 1.80, 1.20, 2.10, 0.50, 1.22], price: 24.90, breakeven: 184000 },
+    Y: { costs: [6.10, 2.90, 1.40, 0.95, 1.80, 0.40, 0.85], price: 19.50, breakeven: 158000 },
+    Z: { costs: [11.40, 4.20, 2.30, 1.60, 2.40, 0.65, 1.55], price: 31.80, breakeven: 211000 }
+  };
+  const wrap = document.getElementById('costLines');
+  function render(key) {
+    const p = PRODUCTS[key];
+    const total = p.costs.reduce((a, b) => a + b, 0);
+    const max = Math.max(...p.costs);
+    wrap.innerHTML = COMPONENTS.map(([name, color], i) => `
+      <div class="cost-line">
+        <div class="cost-dot" style="background:${color}"></div>
+        <div class="cost-name">${name}</div>
+        <div class="cost-bar-wrap"><div class="cost-bar-bg"><div class="cost-bar-fill" style="width:${(p.costs[i] / max * 100).toFixed(0)}%;background:${color}"></div></div></div>
+        <div class="cost-amount">€${p.costs[i].toFixed(2)}</div>
+      </div>`).join('');
+    const profit = p.price - total;
+    document.getElementById('psName').textContent = 'PRODUCT-' + key;
+    document.getElementById('psTotal').textContent = '€' + total.toFixed(2);
+    document.getElementById('psPrice').textContent = '€' + p.price.toFixed(2);
+    document.getElementById('psProfit').textContent = '€' + profit.toFixed(2);
+    document.getElementById('psMargin').textContent = Math.round(profit / p.price * 100) + '%';
+    document.getElementById('psBreakeven').textContent = p.breakeven.toLocaleString();
+  }
+  document.getElementById('productSelect').addEventListener('change', e => render(e.target.value));
+  render('X');
+})();
 </script>
 </body>
 </html>
