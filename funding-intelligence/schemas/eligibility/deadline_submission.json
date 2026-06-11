@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "deadline_submission",
+  "description": "Termenul de depunere a cererii de finanțare.",
+  "type": "object",
+  "required": ["date"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data limită în format ISO 8601 (YYYY-MM-DD)."
+    },
+    "time": {
+      "type": "string",
+      "description": "Ora limită, dacă e specificată (ex. '16:00')."
+    }
+  },
+  "additionalProperties": false
+}

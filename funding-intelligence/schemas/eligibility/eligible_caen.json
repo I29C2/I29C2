@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "eligible_caen",
+  "description": "Lista codurilor CAEN eligibile pentru apel.",
+  "type": "object",
+  "required": ["codes"],
+  "properties": {
+    "codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9]{4}$"
+      },
+      "description": "Coduri CAEN de 4 cifre."
+    },
+    "note": {
+      "type": "string",
+      "description": "Observații (ex. excluderi sau condiții specifice)."
+    }
+  },
+  "additionalProperties": false
+}
